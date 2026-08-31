@@ -1,3 +1,6 @@
+
+
+Index · HTML
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -33,7 +36,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18p
   -webkit-font-smoothing:antialiased}
 button{font-family:inherit;font-size:inherit;color:inherit;border:0;background:none;cursor:pointer}
 input{font-family:inherit;font-size:inherit}
-
+ 
 .screen{position:fixed;inset:0;z-index:100;background:var(--bg);padding:26px 20px;overflow-y:auto;display:none}
 .screen.on{display:block}
 .brandmark{text-align:center;margin:7vh 0 2.6rem}
@@ -50,7 +53,7 @@ input{font-family:inherit;font-size:inherit}
   color:var(--ink);font-size:23.5px;font-weight:700;letter-spacing:.2em;text-align:center;outline:none;text-transform:uppercase}
 .gate-in:focus{border-color:var(--aqua);box-shadow:0 0 0 3px var(--aqua-l)}
 .gate-err{color:var(--warn);font-size:14.5px;font-weight:500;margin:12px 2px 0;min-height:20px;text-align:center}
-
+ 
 .rbtn{display:flex;align-items:center;gap:15px;width:100%;text-align:left;padding:18px 17px;margin-bottom:10px;
   border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
 .rbtn .num{flex:0 0 36px;height:36px;border-radius:50%;background:var(--aqua-l);color:var(--aqua-d);
@@ -61,7 +64,7 @@ input{font-family:inherit;font-size:inherit}
   font-size:14.5px;text-decoration:underline}
 .pickhead{font-family:var(--serif);font-size:22.5px;font-weight:500;letter-spacing:.06em;margin:1rem 0 4px}
 .pickp{color:var(--muted);font-size:14.5px;margin:0 0 22px}
-
+ 
 .top{position:sticky;top:0;z-index:40;background:rgba(234,243,247,.93);backdrop-filter:blur(14px);
   border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:13px 16px}
 .top .who{flex:1;min-width:0}
@@ -71,9 +74,9 @@ input{font-family:inherit;font-size:inherit}
 .net.off{background:var(--warnbg);color:var(--warn)}
 .swap{padding:8px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-size:14px;color:var(--ink2)}
 .wrap{padding:16px 16px 110px}
-
+ 
 .sect{font-size:12px;font-weight:500;letter-spacing:.26em;text-indent:.26em;color:var(--dim);margin:0 4px 11px}
-
+ 
 /* now-serving */
 .now{background:var(--surface);border-radius:20px;border:1px solid var(--line);overflow:hidden;margin-bottom:22px}
 .now .strip{height:6px}
@@ -99,7 +102,7 @@ input{font-family:inherit;font-size:inherit}
 .idle{background:var(--surface);border:1px dashed var(--line2);border-radius:20px;padding:44px 24px;
   text-align:center;color:var(--muted);font-size:15.5px;line-height:2;margin-bottom:20px}
 .idle .mk{font-family:var(--disp);font-size:36px;color:var(--line2);display:block;margin-bottom:8px}
-
+ 
 /* category / table cards */
 .cats{display:grid;gap:10px}
 .cat{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--surface);
@@ -115,7 +118,7 @@ input{font-family:inherit;font-size:inherit}
 .mini{height:4px;border-radius:4px;background:var(--tint);margin-top:8px;overflow:hidden}
 .mini i{display:block;height:100%;border-radius:4px}
 .cat.k1 .mini i{background:var(--k1)} .cat.k2 .mini i{background:var(--k2)} .cat.k3 .mini i{background:var(--k3)}
-
+ 
 .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:9px}
 .tcard{aspect-ratio:1;border-radius:14px;border:1px solid var(--line);background:var(--surface);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
@@ -124,7 +127,7 @@ input{font-family:inherit;font-size:inherit}
 .tcard[data-st="part"]{border-color:var(--k1l);background:var(--k1bg)}
 .tcard[data-st="full"]{border-color:#BFE0D3;background:var(--okbg)}
 .tcard[data-st="full"] .c{color:var(--ok)}
-
+ 
 /* roster */
 .rost{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .rc{border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:var(--surface);min-width:0;text-align:left}
@@ -134,7 +137,7 @@ input{font-family:inherit;font-size:inherit}
 .rc.done .rn{text-decoration:line-through;text-decoration-thickness:1px}
 .rc.done .rs{color:var(--ok);opacity:1}
 .rc.wait{border-color:var(--aqua);background:var(--aqua-l)}
-
+ 
 /* search */
 .searchwrap{position:relative;margin-bottom:12px}
 #q{width:100%;padding:16px 44px 16px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--line2);
@@ -160,7 +163,7 @@ input{font-family:inherit;font-size:inherit}
 .rowgo.edit{background:var(--aqua-l);color:var(--aqua-d);font-size:14px;font-weight:500}
 .hint{font-size:13.5px;color:var(--muted);margin:0 4px 10px;line-height:1.7}
 .empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:15.5px;line-height:2}
-
+ 
 /* sheet */
 .scrim{position:fixed;inset:0;background:rgba(18,53,64,.42);z-index:60;display:none}.scrim.on{display:block}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--bg);border-radius:22px 22px 0 0;
@@ -191,7 +194,7 @@ input{font-family:inherit;font-size:inherit}
 .big.sec{background:var(--surface);border:1px solid var(--line2);color:var(--ink2);font-size:17px;padding:14px;font-weight:500}
 .big.warn{background:var(--warnbg);border:1px solid #E8C0A4;color:var(--warn);font-size:17px;padding:14px;font-weight:500}
 .note{font-size:13.5px;color:var(--muted);margin:9px 2px 0;line-height:1.75}
-
+ 
 /* dashboard */
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .kpis.one{grid-template-columns:1fr}
@@ -222,10 +225,49 @@ input{font-family:inherit;font-size:inherit}
   max-width:88vw;text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+ 
+/* ── 面板：標題、四宮格、備註 ── */
+.panelh{font-family:var(--serif);font-size:23px;font-weight:500;letter-spacing:.04em;margin:0 0 14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.g2 .c{background:var(--surface);border:1px solid var(--line);border-radius:15px;
+  padding:17px 16px;min-height:92px;display:flex;flex-direction:column;justify-content:center}
+.g2 .c .lb{font-size:13px;color:var(--muted);margin-bottom:5px;letter-spacing:.06em}
+.g2 .c .vl{font-family:var(--serif);font-size:24px;font-weight:500;line-height:1.3;word-break:break-all}
+.g2 .c.k1{background:var(--k1bg);border-color:var(--k1l)} .g2 .c.k1 .vl{color:var(--k1)}
+.g2 .c.k2{background:var(--k2bg);border-color:var(--k2l)} .g2 .c.k2 .vl{color:var(--k2)}
+.g2 .c.k3{background:var(--k3bg);border-color:var(--k3l)} .g2 .c.k3 .vl{color:var(--k3)}
+.ta{display:block;width:100%;min-height:132px;padding:15px 16px;border-radius:14px;background:var(--surface);
+  border:1px solid var(--line2);color:var(--ink);font-size:19px;font-family:inherit;line-height:1.65;
+  outline:none;resize:vertical}
+.ta:focus{border-color:var(--aqua);box-shadow:0 0 0 3px var(--aqua-l)}
+.ta::placeholder{color:var(--dim);font-size:17px}
+.notebig{font-size:15px;color:var(--ink2);line-height:1.8;margin:14px 2px 20px}
+/* ── 收禮台置頂最近 ── */
+.recent{margin-bottom:16px}
+.rcard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface2);
+  border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px}
+.rcard .rb{flex:0 0 5px;height:36px;border-radius:4px}
+.rcard.k1 .rb{background:var(--k1)} .rcard.k2 .rb{background:var(--k2)} .rcard.k3 .rb{background:var(--k3)}
+.rcard .rt{flex:1;min-width:0}
+.rcard .rt b{display:block;font-size:19px;font-weight:500}
+.rcard .rt span{font-size:13.5px;color:var(--muted)}
+.rcard .re{flex:0 0 auto;background:var(--aqua-l);color:var(--aqua-d);font-size:14px;font-weight:500;
+  padding:8px 13px;border-radius:20px}
+/* ── 備註通知 ── */
+.nitem{display:flex;gap:12px;align-items:flex-start;padding:13px 0}
+.nitem+.nitem{border-top:1px solid var(--line)}
+.nitem .nb{flex:1;min-width:0}
+.nitem .nb b{display:block;font-size:17px;font-weight:500}
+.nitem .nb i{font-style:normal;display:block;font-size:15px;color:var(--ink2);margin-top:3px;line-height:1.6}
+.nitem .nb em{font-style:normal;font-size:13px;color:var(--muted)}
+.nitem button{flex:0 0 auto;background:var(--aqua-l);color:var(--aqua-d);border-radius:20px;
+  padding:8px 13px;font-size:13.5px;font-weight:500;align-self:center}
+.notebadge{background:var(--warnbg);color:var(--warn);font-size:12px;font-weight:700;
+  padding:3px 9px;border-radius:20px;margin-left:8px}
 </style>
 </head>
 <body>
-
+ 
 <div class="screen on" id="gate">
   <div class="brandmark">
     <h1>SHANY &amp; ORANGE</h1>
@@ -240,30 +282,30 @@ input{font-family:inherit;font-size:inherit}
     <button class="big go" onclick="tryCode()">進入</button>
   </div>
 </div>
-
+ 
 <div class="screen" id="pick">
   <h1 class="pickhead">選擇你的位置</h1>
   <p class="pickp">選擇今天負責的關卡，隨時可在右上角切換。</p>
   <div id="roleList"></div>
   <button class="linkbtn" onclick="logout()">更換通行碼</button>
 </div>
-
+ 
 <div class="top" id="top" style="display:none">
   <div class="who"><b id="roleName"></b><i id="roleSub"></i></div>
   <span class="net" id="net">連線中</span>
   <button class="swap" onclick="backToPick()">切換</button>
 </div>
 <div class="wrap" id="wrap"></div>
-
+ 
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet"><div class="grab"></div><div id="sheetIn"></div></div>
 <div class="toast" id="toast"></div>
-
+ 
 <script>
 /* ═══ Apps Script 部署網址 ═══ */
 var API = "https://script.google.com/macros/s/AKfycbz5LVKYkgWCDmIVr_VA0VGHVNZ_dtNeQ1rsBDMYa9q1IeshUAbQDZSvN7UYt7Qi32vH/exec";
 /* ════════════════════════════ */
-
+ 
 var $=function(s){return document.querySelector(s)}
 var WED_TITLE="SHANY & ORANGE";
 var ROLES={gF:["收禮台・女方","STATION 1 · 女方","1","登記姓名、紅包編號與金額"],
@@ -272,18 +314,19 @@ var ROLES={gF:["收禮台・女方","STATION 1 · 女方","1","登記姓名、�
   ush:["接待引導","STATION 3 · 入席","3","帶位入席、確認就座"],
   dash:["總覽後台","OVERVIEW","◎","新人與總召使用"]}
 var STAGE_NAMES=["未到","待發餅","待入席","已入席"]
-
+ 
 var rows=[],rev=-1,role=null,code=""
 var perms={roles:[],seeTotals:false,canEnterAmount:false}
 var boxNames={'1':'款1・女方長輩','2':'款2・女方','3':'款3・男方'}
 var prevIds=new Set(),audioCtx=null,shellRole=null,composing=false,sheetOpen=false,outbox=[]
-
+var noteSeen=null
+ 
 function kOf(p){return (p.side==="女") ? (p.elder?"1":"2") : "3"}
 function kName(k){return boxNames[k]||("款"+k)}
 var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function byId(id){for(var i=0;i<rows.length;i++)if(rows[i].id===id)return rows[i];return null}
-
+ 
 function setNet(s){var e=$("#net")
   e.textContent = s==="ok"?"已同步" : s==="send"?"傳送中" : "離線 "+(outbox.length||"")
   e.classList.toggle("off", s!=="ok"&&s!=="send")}
@@ -301,13 +344,26 @@ function ping(){
   }catch(e){}
   if(navigator.vibrate)try{navigator.vibrate([80,60,80])}catch(e){}
 }
-
+ 
 /* ---------- 通行碼 ---------- */
+function checkNotes(){
+  if(!perms.seeTotals)return
+  var cur={},fresh=[]
+  rows.forEach(function(p){ if(p.note&&p.note.trim()){ cur[p.id]=p.note
+    if(noteSeen&&noteSeen[p.id]!==p.note)fresh.push(p) } })
+  if(noteSeen&&fresh.length){
+    ping()
+    toast(fresh.length===1 ? "新備註　"+fresh[0].name+"：" + fresh[0].note.slice(0,14)
+                           : "有 "+fresh.length+" 則新備註")
+  }
+  noteSeen=cur
+}
 function applyPayload(d){
   if(d.rows)rows=d.rows
   if(d.rev!==undefined)rev=d.rev
   if(d.boxNames)boxNames=d.boxNames
   if(d.roles)perms={roles:d.roles,seeTotals:!!d.seeTotals,canEnterAmount:!!d.canEnterAmount}
+  checkNotes()
 }
 function tryCode(){
   var v=$("#code-in").value.trim().toUpperCase()
@@ -346,7 +402,7 @@ function setRole(r){
   try{localStorage.setItem("wedRole",r)}catch(e){}
   render()
 }
-
+ 
 /* ---------- 連線 ---------- */
 async function pull(){
   if(!code)return false
@@ -390,7 +446,7 @@ function startPolling(){
     if(await pull())render()
   },3000)
 }
-
+ 
 function render(){
   if(!role)return
   var w=$("#wrap")
@@ -400,7 +456,7 @@ function render(){
     else if(role==="ush")renderUsher(w)
     else renderDash(w)}
 }
-
+ 
 /* ═══════ 共用：更正面板 ═══════ */
 function openFix(id,back){
   var p=byId(id);if(!p)return
@@ -410,12 +466,12 @@ function openFix(id,back){
     +'<div class="rmeta" style="margin-top:8px"><span class="chip k'+k+'">'+esc(kName(k))+'</span>'
     +'<span>'+esc(p.envNo||"尚未收禮")+'</span></div></div>'
     +'<div class="sbody">'
-    +'<p class="fieldlabel">賓客資料（唯讀）</p>'
-    +'<div class="ro">'
-    +'<div class="r"><span>姓名</span><b>'+esc(p.name)+'</b></div>'
-    +'<div class="r"><span>桌次</span><b>第 '+p.table+' 桌</b></div>'
-    +'<div class="r"><span>攜伴人數</span><b>'+(p.party||1)+' 位</b></div>'
-    +'<div class="r"><span>喜餅款式</span><b>'+esc(kName(k))+'</b></div>'
+    +'<p class="panelh">賓客資料</p>'
+    +'<div class="g2">'
+    +'<div class="c"><span class="vl">'+esc(p.name)+'</span></div>'
+    +'<div class="c"><span class="vl">第 '+p.table+' 桌</span></div>'
+    +'<div class="c"><span class="lb">攜伴人數</span><span class="vl">'+(p.party||1)+' 位</span></div>'
+    +'<div class="c k'+k+'"><span class="lb">喜餅款式</span><span class="vl">'+esc(kName(k))+'</span></div>'
     +'</div>'
     +'<div class="field"><p class="fieldlabel">目前進度</p><div class="stages">'
     +[0,1,2,3].map(function(st){
@@ -424,9 +480,9 @@ function openFix(id,back){
         +STAGE_NAMES[st]+'</button>'}).join("")
     +'</div><p class="note">點任一格即可把這位賓客移到該進度。'
     +(perms.canEnterAmount?'退回「未到」會一併清除紅包編號與金額。':'退回「未到」需要收禮台權限。')+'</p></div>'
-    +'<div class="field"><p class="fieldlabel">備註</p>'
+    +'<p class="panelh" style="margin-top:26px">備註</p>'
     +'<textarea class="ta" id="x-note" placeholder="例如：桌次有誤、代領三份、長輩需要輪椅位">'+esc(p.note||"")+'</textarea>'
-    +'<p class="note">備註會直接寫進 Google 試算表的「備註」欄，總召在後台看得到。基本資料如需更改請告知總召。</p></div>'
+    +'<p class="notebig">備註會直接寫進 Google 試算表中的備註欄，訊息會跳給總召及新人。總召會立即處理，若有緊急事件請立即找尋總召本人。</p>'
     +'<button class="big go" onclick="saveNote('+id+')">儲存備註</button>'
     +(perms.canEnterAmount?'<button class="big sec" onclick="closeSheet();setTimeout(function(){openGift('+id+')},220)">改紅包編號或金額</button>':'')
     +(perms.seeTotals?'<button class="big sec" onclick="openFixEdit('+id+')">總召：修改基本資料</button>':'')
@@ -442,7 +498,7 @@ async function saveNote(id){
   toast(v?"備註已儲存":"備註已清除")
   if(back)setTimeout(back,220)
 }
-
+ 
 /* 總召專用：解鎖基本資料 */
 function openFixEdit(id){
   var p=byId(id);if(!p)return
@@ -486,7 +542,7 @@ async function setStage(id,s){
     var p=byId(id);if(p){p.stage=s;if(s===0){p.envNo="";p.amount=null}}})
   toast("已改為「"+STAGE_NAMES[s]+"」")
 }
-
+ 
 /* ═══════ STATION 1 收禮台 ═══════ */
 function nextEnvPreview(side){
   var prefix=side==="女"?"F":"M",max=0
@@ -610,7 +666,7 @@ async function doneGift(id){
   }
   var qq=$("#q");if(qq){qq.value="";paintRecent();paintResults();qq.focus()}
 }
-
+ 
 /* 新增賓客 */
 var wiK="2"
 function walkinForm(target){
@@ -643,7 +699,7 @@ async function saveWalkin(target){
   if(target==="box")toast("已發餅並送往接待台")
   else if(d&&d.newId)setTimeout(function(){openGift(d.newId)},200)
 }
-
+ 
 /* ═══════ STATION 2 發餅台 ═══════ */
 function renderBox(w){
   var q=rows.filter(function(p){return p.stage===1})
@@ -706,7 +762,7 @@ async function gaveBox(id){
   await send({action:"stage",id:id,stage:2},function(){p.stage=2})
   toast("已發出，接待台會收到通知")
 }
-
+ 
 /* ═══════ STATION 3 接待引導 ═══════ */
 function renderUsher(w){
   var q=rows.filter(function(p){return p.stage===2})
@@ -768,7 +824,7 @@ async function seat(id){
   await send({action:"stage",id:id,stage:3},function(){p.stage=3})
   toast("已入席")
 }
-
+ 
 /* ═══════ 總覽 ═══════ */
 function renderDash(w){
   var tot=rows.length
@@ -801,8 +857,20 @@ function renderDash(w){
       var out=all.filter(function(p){return p.stage>=2}).length
       return '<div class="line"><span>'+esc(kName(k))+'</span><span><b>'+out+'</b> / '+all.length+' 盒</span></div>'}).join("")
     +'<p class="note">分母就是訂餅要抓的基準盒數，建議再加一成備品。</p></div>'
-
-  w.innerHTML='<div class="kpis">'
+ 
+  var noted=rows.filter(function(p){return p.note&&p.note.trim()})
+  var noteCard=""
+  if(noted.length){
+    noteCard='<div class="card" style="border-color:#E8C0A4;background:var(--warnbg)">'
+      +'<h3 style="color:var(--warn)">工作人員備註<span class="notebadge">'+noted.length+'</span></h3>'
+      +noted.map(function(p){
+        return '<div class="nitem"><div class="nb"><b>'+esc(p.name)+'</b>'
+          +'<i>'+esc(p.note)+'</i>'
+          +'<em>第 '+p.table+' 桌　'+esc(p.envNo||"未收禮")+'　'+STAGE_NAMES[p.stage]+'</em></div>'
+          +'<button onclick="clearNote('+p.id+')">已處理</button></div>'}).join("")
+      +'</div>'
+  }
+  w.innerHTML=noteCard+'<div class="kpis">'
     +'<div class="kpi"><div class="k">已到場</div><div class="v">'+arr
     +'<span style="font-size:17px;color:var(--dim)"> / '+tot+'</span></div><div class="s">'+pct+'%</div>'
     +'<div class="track"><i style="width:'+pct+'%"></i></div></div>'
@@ -831,6 +899,10 @@ function renderDash(w){
       +'<button onclick="exportCSV()">匯出 CSV</button></div>'
       +'<p class="note">完整資料隨時在 Google 試算表裡，這裡只是備份用。</p></div>':'')
 }
+async function clearNote(id){
+  await send({action:"note",id:id,note:""},function(){var p=byId(id);if(p)p.note=""})
+  toast("已標記處理完畢")
+}
 function exportCSV(){
   var head=["編號","姓名","方","關係","桌次","攜伴","喜餅款式","狀態","金額","備註"]
   var body=rows.map(function(p){
@@ -841,12 +913,12 @@ function exportCSV(){
   a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}))
   a.download="婚宴名單.csv";a.click();toast("已匯出 CSV")
 }
-
+ 
 function openSheet(){sheetOpen=true;$("#scrim").classList.add("on");$("#sheet").classList.add("on")}
 function closeSheet(){sheetOpen=false;$("#scrim").classList.remove("on");$("#sheet").classList.remove("on")}
 $("#scrim").onclick=closeSheet
 $("#code-in").addEventListener("keydown",function(e){if(e.key==="Enter")tryCode()})
-
+ 
 ;(function(){
   var saved=null,savedRole=null
   try{saved=localStorage.getItem("wedCode");savedRole=localStorage.getItem("wedRole")}catch(e){}
@@ -866,3 +938,5 @@ $("#code-in").addEventListener("keydown",function(e){if(e.key==="Enter")tryCode(
 </script>
 </body>
 </html>
+ 
+
