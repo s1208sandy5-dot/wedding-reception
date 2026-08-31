@@ -28,7 +28,7 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.55;
   font-variant-numeric:tabular-nums;padding-bottom:env(safe-area-inset-bottom);
   -webkit-font-smoothing:antialiased}
 button{font-family:inherit;font-size:inherit;color:inherit;border:0;background:none;cursor:pointer}
@@ -37,42 +37,42 @@ input{font-family:inherit;font-size:inherit}
 .screen{position:fixed;inset:0;z-index:100;background:var(--bg);padding:26px 20px;overflow-y:auto;display:none}
 .screen.on{display:block}
 .brandmark{text-align:center;margin:7vh 0 2.6rem}
-.brandmark h1{font-family:var(--disp);font-size:26px;font-weight:400;margin:0;
+.brandmark h1{font-family:var(--disp);font-size:29px;font-weight:400;margin:0;
   letter-spacing:.34em;text-indent:.34em;color:var(--ink);white-space:nowrap}
 .rule{width:52px;height:1px;background:var(--line2);margin:20px auto}
-.brandmark .sub{font-size:11px;letter-spacing:.42em;text-indent:.42em;color:var(--muted)}
-.brandmark .date{font-family:var(--disp);font-size:13px;letter-spacing:.3em;text-indent:.3em;
+.brandmark .sub{font-size:12.5px;letter-spacing:.42em;text-indent:.42em;color:var(--muted)}
+.brandmark .date{font-family:var(--disp);font-size:14.5px;letter-spacing:.3em;text-indent:.3em;
   color:var(--dim);margin-top:26px}
 #gate{background:linear-gradient(180deg,#F2F8F8 0%,var(--bg) 42%,#DEEDEE 100%)}
 .gatebox{max-width:400px;margin:0 auto}
-.gatebox p{color:var(--muted);font-size:13.5px;line-height:1.9;text-align:center;margin:0 0 20px}
+.gatebox p{color:var(--muted);font-size:15px;line-height:1.9;text-align:center;margin:0 0 20px}
 .gate-in{width:100%;padding:17px 16px;border-radius:13px;background:var(--surface);border:1px solid var(--line2);
-  color:var(--ink);font-size:21px;font-weight:700;letter-spacing:.2em;text-align:center;outline:none;text-transform:uppercase}
+  color:var(--ink);font-size:23.5px;font-weight:700;letter-spacing:.2em;text-align:center;outline:none;text-transform:uppercase}
 .gate-in:focus{border-color:var(--aqua);box-shadow:0 0 0 3px var(--aqua-l)}
-.gate-err{color:var(--warn);font-size:13px;font-weight:500;margin:12px 2px 0;min-height:20px;text-align:center}
+.gate-err{color:var(--warn);font-size:14.5px;font-weight:500;margin:12px 2px 0;min-height:20px;text-align:center}
 
 .rbtn{display:flex;align-items:center;gap:15px;width:100%;text-align:left;padding:18px 17px;margin-bottom:10px;
   border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
 .rbtn .num{flex:0 0 36px;height:36px;border-radius:50%;background:var(--aqua-l);color:var(--aqua-d);
-  display:flex;align-items:center;justify-content:center;font-weight:500;font-size:15px;font-family:var(--disp)}
-.rbtn .t{font-size:17px;font-weight:500;font-family:var(--serif);letter-spacing:.04em}
-.rbtn .d{font-size:12.5px;color:var(--muted);margin-top:1px}
+  display:flex;align-items:center;justify-content:center;font-weight:500;font-size:17px;font-family:var(--disp)}
+.rbtn .t{font-size:19px;font-weight:500;font-family:var(--serif);letter-spacing:.04em}
+.rbtn .d{font-size:14px;color:var(--muted);margin-top:1px}
 .linkbtn{display:block;width:100%;text-align:center;padding:14px;margin-top:16px;color:var(--dim);
-  font-size:13px;text-decoration:underline}
-.pickhead{font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:.06em;margin:1rem 0 4px}
-.pickp{color:var(--muted);font-size:13px;margin:0 0 22px}
+  font-size:14.5px;text-decoration:underline}
+.pickhead{font-family:var(--serif);font-size:22.5px;font-weight:500;letter-spacing:.06em;margin:1rem 0 4px}
+.pickp{color:var(--muted);font-size:14.5px;margin:0 0 22px}
 
 .top{position:sticky;top:0;z-index:40;background:rgba(234,243,247,.93);backdrop-filter:blur(14px);
   border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:13px 16px}
 .top .who{flex:1;min-width:0}
-.top .who b{display:block;font-family:var(--serif);font-size:16px;font-weight:500;letter-spacing:.05em}
-.top .who i{font-style:normal;font-size:10.5px;color:var(--dim);letter-spacing:.16em}
-.net{font-size:10px;font-weight:700;padding:4px 9px;border-radius:20px;background:var(--okbg);color:var(--ok);letter-spacing:.04em}
+.top .who b{display:block;font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:.05em}
+.top .who i{font-style:normal;font-size:12px;color:var(--dim);letter-spacing:.16em}
+.net{font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;background:var(--okbg);color:var(--ok);letter-spacing:.04em}
 .net.off{background:var(--warnbg);color:var(--warn)}
-.swap{padding:8px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-size:12.5px;color:var(--ink2)}
+.swap{padding:8px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-size:14px;color:var(--ink2)}
 .wrap{padding:16px 16px 110px}
 
-.sect{font-size:10.5px;font-weight:500;letter-spacing:.26em;text-indent:.26em;color:var(--dim);margin:0 4px 11px}
+.sect{font-size:12px;font-weight:500;letter-spacing:.26em;text-indent:.26em;color:var(--dim);margin:0 4px 11px}
 
 /* now-serving */
 .now{background:var(--surface);border-radius:20px;border:1px solid var(--line);overflow:hidden;margin-bottom:22px}
@@ -80,25 +80,25 @@ input{font-family:inherit;font-size:inherit}
 .now.k1 .strip{background:var(--k1)} .now.k2 .strip{background:var(--k2)} .now.k3 .strip{background:var(--k3)}
 .now.plain .strip{background:var(--aqua)}
 .now .body{padding:22px 20px 20px;text-align:center}
-.nowlabel{font-size:10px;letter-spacing:.34em;text-indent:.34em;color:var(--dim);margin-bottom:15px}
-.nowname{font-family:var(--serif);font-size:37px;font-weight:500;line-height:1.2;letter-spacing:.06em;word-break:break-all}
+.nowlabel{font-size:11px;letter-spacing:.34em;text-indent:.34em;color:var(--dim);margin-bottom:15px}
+.nowname{font-family:var(--serif);font-size:41.5px;font-weight:500;line-height:1.2;letter-spacing:.06em;word-break:break-all}
 .nowmeta{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:14px}
-.badge{padding:5px 13px;border-radius:22px;font-size:13px;font-weight:500}
+.badge{padding:5px 13px;border-radius:22px;font-size:14.5px;font-weight:500}
 .badge.k1{background:var(--k1bg);color:var(--k1)} .badge.k2{background:var(--k2bg);color:var(--k2)}
 .badge.k3{background:var(--k3bg);color:var(--k3)}
 .badge.n{background:var(--tint);color:var(--ink2)}
-.bigtable{font-family:var(--disp);font-size:74px;font-weight:400;line-height:.9;color:var(--aqua-d);letter-spacing:.01em}
-.bigtable small{font-size:19px;font-weight:400;color:var(--muted);margin-left:6px}
-.act{display:block;width:100%;padding:19px;border-radius:15px;font-size:19px;font-weight:500;letter-spacing:.14em;text-indent:.14em;
+.bigtable{font-family:var(--disp);font-size:83px;font-weight:400;line-height:.9;color:var(--aqua-d);letter-spacing:.01em}
+.bigtable small{font-size:21.5px;font-weight:400;color:var(--muted);margin-left:6px}
+.act{display:block;width:100%;padding:19px;border-radius:15px;font-size:21.5px;font-weight:500;letter-spacing:.14em;text-indent:.14em;
   background:var(--ok);color:#fff;margin-top:22px}
 .act:active{opacity:.85}
-.act.sec{background:var(--surface2);border:1px solid var(--line2);color:var(--ink2);font-size:15px;padding:14px;font-weight:500;margin-top:9px}
+.act.sec{background:var(--surface2);border:1px solid var(--line2);color:var(--ink2);font-size:17px;padding:14px;font-weight:500;margin-top:9px}
 .nextup{padding:12px 18px;border-top:1px solid var(--line);background:var(--surface2);
-  font-size:12.5px;color:var(--muted);text-align:center}
+  font-size:14px;color:var(--muted);text-align:center}
 .nextup b{color:var(--ink2);font-weight:500}
 .idle{background:var(--surface);border:1px dashed var(--line2);border-radius:20px;padding:44px 24px;
-  text-align:center;color:var(--muted);font-size:14px;line-height:2;margin-bottom:20px}
-.idle .mk{font-family:var(--disp);font-size:32px;color:var(--line2);display:block;margin-bottom:8px}
+  text-align:center;color:var(--muted);font-size:15.5px;line-height:2;margin-bottom:20px}
+.idle .mk{font-family:var(--disp);font-size:36px;color:var(--line2);display:block;margin-bottom:8px}
 
 /* category / table cards */
 .cats{display:grid;gap:10px}
@@ -107,11 +107,11 @@ input{font-family:inherit;font-size:inherit}
 .cat .dot{flex:0 0 10px;height:38px;border-radius:6px}
 .cat.k1 .dot{background:var(--k1)} .cat.k2 .dot{background:var(--k2)} .cat.k3 .dot{background:var(--k3)}
 .cat .nm{flex:1;min-width:0}
-.cat .nm b{display:block;font-size:15.5px;font-weight:500}
-.cat .nm span{font-size:12px;color:var(--muted)}
+.cat .nm b{display:block;font-size:17.5px;font-weight:500}
+.cat .nm span{font-size:13.5px;color:var(--muted)}
 .cat .ct{text-align:right}
-.cat .ct b{font-size:20px;font-weight:700}
-.cat .ct span{font-size:12px;color:var(--muted)}
+.cat .ct b{font-size:22.5px;font-weight:700}
+.cat .ct span{font-size:13.5px;color:var(--muted)}
 .mini{height:4px;border-radius:4px;background:var(--tint);margin-top:8px;overflow:hidden}
 .mini i{display:block;height:100%;border-radius:4px}
 .cat.k1 .mini i{background:var(--k1)} .cat.k2 .mini i{background:var(--k2)} .cat.k3 .mini i{background:var(--k3)}
@@ -119,8 +119,8 @@ input{font-family:inherit;font-size:inherit}
 .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:9px}
 .tcard{aspect-ratio:1;border-radius:14px;border:1px solid var(--line);background:var(--surface);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
-.tcard .n{font-family:var(--disp);font-size:26px;font-weight:400;line-height:1}
-.tcard .c{font-size:11px;color:var(--muted)}
+.tcard .n{font-family:var(--disp);font-size:29px;font-weight:400;line-height:1}
+.tcard .c{font-size:12.5px;color:var(--muted)}
 .tcard[data-st="part"]{border-color:var(--k1l);background:var(--k1bg)}
 .tcard[data-st="full"]{border-color:#BFE0D3;background:var(--okbg)}
 .tcard[data-st="full"] .c{color:var(--ok)}
@@ -128,8 +128,8 @@ input{font-family:inherit;font-size:inherit}
 /* roster */
 .rost{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .rc{border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:var(--surface);min-width:0;text-align:left}
-.rc .rn{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rc .rs{font-size:11px;color:var(--muted);margin-top:2px}
+.rc .rn{font-size:17px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc .rs{font-size:12.5px;color:var(--muted);margin-top:2px}
 .rc.done{background:var(--surface2);border-color:var(--line);opacity:.5}
 .rc.done .rn{text-decoration:line-through;text-decoration-thickness:1px}
 .rc.done .rs{color:var(--ok);opacity:1}
@@ -138,24 +138,28 @@ input{font-family:inherit;font-size:inherit}
 /* search */
 .searchwrap{position:relative;margin-bottom:12px}
 #q{width:100%;padding:16px 44px 16px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--line2);
-  color:var(--ink);font-size:19px;font-weight:500;outline:none}
+  color:var(--ink);font-size:21.5px;font-weight:500;outline:none}
 #q:focus{border-color:var(--aqua);box-shadow:0 0 0 3px var(--aqua-l)}
-#q::placeholder{color:var(--dim);font-weight:400;font-size:16px}
-.clr{position:absolute;right:6px;top:6px;bottom:6px;width:36px;color:var(--dim);font-size:19px;display:none}
+#q::placeholder{color:var(--dim);font-weight:400;font-size:18px}
+.clr{position:absolute;right:6px;top:6px;bottom:6px;width:36px;color:var(--dim);font-size:21.5px;display:none}
 .clr.on{display:block}
 .row{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:9px;overflow:hidden}
-.row.done{opacity:.5;background:var(--surface2)}
+.row.done{background:var(--surface2)}
+.row.done .rname{color:var(--ink2)}
 .bar{flex:0 0 7px}
 .bar.k1{background:var(--k1)} .bar.k2{background:var(--k2)} .bar.k3{background:var(--k3)}
 .rowmain{flex:1;padding:12px 14px;min-width:0}
-.rname{font-size:18px;font-weight:500}
-.rmeta{font-size:12px;color:var(--muted);margin-top:3px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
-.chip{padding:1px 7px;border-radius:20px;font-size:10.5px;font-weight:700}
+.rname{font-size:20px;font-weight:500}
+.rmeta{font-size:13.5px;color:var(--muted);margin-top:3px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.chip{padding:1px 7px;border-radius:20px;font-size:12px;font-weight:700}
 .chip.k1{background:var(--k1bg);color:var(--k1)} .chip.k2{background:var(--k2bg);color:var(--k2)}
 .chip.k3{background:var(--k3bg);color:var(--k3)}
 .chip.ok{background:var(--okbg);color:var(--ok)}
-.rowgo{flex:0 0 50px;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:20px;border-left:1px solid var(--line)}
-.empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:14px;line-height:2}
+.rowgo{flex:0 0 62px;display:flex;align-items:center;justify-content:center;color:var(--dim);
+  font-size:21.5px;border-left:1px solid var(--line);text-align:center;line-height:1.25}
+.rowgo.edit{background:var(--aqua-l);color:var(--aqua-d);font-size:14px;font-weight:500}
+.hint{font-size:13.5px;color:var(--muted);margin:0 4px 10px;line-height:1.7}
+.empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:15.5px;line-height:2}
 
 /* sheet */
 .scrim{position:fixed;inset:0;background:rgba(18,53,64,.42);z-index:60;display:none}.scrim.on{display:block}
@@ -165,56 +169,56 @@ input{font-family:inherit;font-size:inherit}
 .sheet.on{transform:none}
 .grab{width:38px;height:4px;border-radius:4px;background:var(--line2);margin:10px auto 4px}
 .shead{padding:10px 20px 16px;border-bottom:1px solid var(--line)}
-.shead h2{margin:0;font-family:var(--serif);font-size:24px;font-weight:500;letter-spacing:.04em}
+.shead h2{margin:0;font-family:var(--serif);font-size:27px;font-weight:500;letter-spacing:.04em}
 .sbody{padding:18px 20px}
-.fieldlabel{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.1em;margin:0 0 8px}
+.fieldlabel{font-size:12.5px;color:var(--muted);font-weight:700;letter-spacing:.1em;margin:0 0 8px}
 .field{margin-bottom:18px}
 .tin{width:100%;padding:13px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line2);
-  color:var(--ink);font-size:19px;font-weight:500;outline:none}
+  color:var(--ink);font-size:21.5px;font-weight:500;outline:none}
 .tin:focus{border-color:var(--aqua);box-shadow:0 0 0 3px var(--aqua-l)}
 .amts{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:8px}
-.amts button{padding:11px 2px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-size:14.5px;font-weight:500}
+.amts button{padding:11px 2px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-size:16px;font-weight:500}
 .seg{display:flex;gap:7px}
 .seg button{flex:1;padding:12px 4px;border-radius:11px;background:var(--surface);border:1px solid var(--line);
-  font-size:13.5px;font-weight:500;color:var(--muted)}
+  font-size:15px;font-weight:500;color:var(--muted)}
 .seg button[data-on="1"]{background:var(--aqua-l);border-color:var(--aqua);color:var(--aqua-d);font-weight:700}
 .stages{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 .stages button{padding:13px 2px;border-radius:11px;background:var(--surface);border:1px solid var(--line);
-  font-size:12.5px;font-weight:500;color:var(--muted)}
+  font-size:14px;font-weight:500;color:var(--muted)}
 .stages button[data-on="1"]{background:var(--aqua);border-color:var(--aqua);color:#fff;font-weight:700}
-.big{display:block;width:100%;padding:18px;border-radius:14px;font-size:18px;font-weight:700;margin-top:6px}
+.big{display:block;width:100%;padding:18px;border-radius:14px;font-size:20px;font-weight:700;margin-top:6px}
 .big.go{background:var(--ok);color:#fff}
-.big.sec{background:var(--surface);border:1px solid var(--line2);color:var(--ink2);font-size:15px;padding:14px;font-weight:500}
-.big.warn{background:var(--warnbg);border:1px solid #E8C0A4;color:var(--warn);font-size:15px;padding:14px;font-weight:500}
-.note{font-size:12px;color:var(--muted);margin:9px 2px 0;line-height:1.75}
+.big.sec{background:var(--surface);border:1px solid var(--line2);color:var(--ink2);font-size:17px;padding:14px;font-weight:500}
+.big.warn{background:var(--warnbg);border:1px solid #E8C0A4;color:var(--warn);font-size:17px;padding:14px;font-weight:500}
+.note{font-size:13.5px;color:var(--muted);margin:9px 2px 0;line-height:1.75}
 
 /* dashboard */
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .kpis.one{grid-template-columns:1fr}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:15px}
-.kpi .k{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.08em}
-.kpi .v{font-family:var(--disp);font-size:38px;font-weight:400;margin-top:2px;line-height:1.05}
-.kpi .s{font-size:12px;color:var(--dim);margin-top:2px}
+.kpi .k{font-size:12.5px;color:var(--muted);font-weight:700;letter-spacing:.08em}
+.kpi .v{font-family:var(--disp);font-size:42.5px;font-weight:400;margin-top:2px;line-height:1.05}
+.kpi .s{font-size:13.5px;color:var(--dim);margin-top:2px}
 .track{height:5px;border-radius:5px;background:var(--tint);margin-top:10px;overflow:hidden}
 .track i{display:block;height:100%;background:var(--aqua);border-radius:5px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
-.card h3{margin:0 0 12px;font-size:11.5px;font-weight:700;letter-spacing:.12em;color:var(--muted)}
-.line{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;font-size:14px}
-.line b{font-size:17px;font-weight:700}.line+.line{border-top:1px solid var(--line)}
-.callout{border-radius:13px;padding:14px 16px;font-size:13.5px;line-height:1.7;margin-bottom:12px}
+.card h3{margin:0 0 12px;font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--muted)}
+.line{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;font-size:15.5px}
+.line b{font-size:19px;font-weight:700}.line+.line{border-top:1px solid var(--line)}
+.callout{border-radius:13px;padding:14px 16px;font-size:15px;line-height:1.7;margin-bottom:12px}
 .callout.wait{background:var(--warnbg);color:#8A4A22;border:1px solid #EDCDB4}
 .callout.go{background:var(--okbg);color:#1E6B50;border:1px solid #BFE0D3}
 .callout.err{background:var(--warnbg);color:#8A4A22;border:1px solid #EDCDB4}
 .flow{display:flex;gap:7px}
 .fl{flex:1;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}
-.fl .n{font-family:var(--disp);font-size:30px;font-weight:400;line-height:1.1}
-.fl .l{font-size:10px;color:var(--muted);margin-top:2px}
+.fl .n{font-family:var(--disp);font-size:33.5px;font-weight:400;line-height:1.1}
+.fl .l{font-size:11px;color:var(--muted);margin-top:2px}
 .fl[data-hot="1"]{border-color:#E8C0A4;background:var(--warnbg)}
 .fl[data-hot="1"] .n{color:var(--warn)}
 .util{display:flex;gap:8px;flex-wrap:wrap}
-.util button{padding:11px 15px;border-radius:11px;background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:500}
+.util button{padding:11px 15px;border-radius:11px;background:var(--surface);border:1px solid var(--line);font-size:14.5px;font-weight:500}
 .toast{position:fixed;left:50%;bottom:32px;transform:translate(-50%,26px);z-index:95;background:var(--ink);color:#fff;
-  padding:13px 22px;border-radius:30px;font-size:14px;font-weight:500;opacity:0;transition:.2s;pointer-events:none;
+  padding:13px 22px;border-radius:30px;font-size:15.5px;font-weight:500;opacity:0;transition:.2s;pointer-events:none;
   max-width:88vw;text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -402,9 +406,50 @@ function openFix(id,back){
   var p=byId(id);if(!p)return
   var k=kOf(p)
   window._fixBack=back||null
+  $("#sheetIn").innerHTML='<div class="shead"><h2>'+esc(p.name)+'</h2>'
+    +'<div class="rmeta" style="margin-top:8px"><span class="chip k'+k+'">'+esc(kName(k))+'</span>'
+    +'<span>'+esc(p.envNo||"尚未收禮")+'</span></div></div>'
+    +'<div class="sbody">'
+    +'<p class="fieldlabel">賓客資料（唯讀）</p>'
+    +'<div class="ro">'
+    +'<div class="r"><span>姓名</span><b>'+esc(p.name)+'</b></div>'
+    +'<div class="r"><span>桌次</span><b>第 '+p.table+' 桌</b></div>'
+    +'<div class="r"><span>攜伴人數</span><b>'+(p.party||1)+' 位</b></div>'
+    +'<div class="r"><span>喜餅款式</span><b>'+esc(kName(k))+'</b></div>'
+    +'</div>'
+    +'<div class="field"><p class="fieldlabel">目前進度</p><div class="stages">'
+    +[0,1,2,3].map(function(st){
+      var dis=(st===0&&!perms.canEnterAmount)?'disabled style="opacity:.4"':''
+      return '<button '+(p.stage===st?'data-on="1"':'')+' onclick="setStage('+id+','+st+')" '+dis+'>'
+        +STAGE_NAMES[st]+'</button>'}).join("")
+    +'</div><p class="note">點任一格即可把這位賓客移到該進度。'
+    +(perms.canEnterAmount?'退回「未到」會一併清除紅包編號與金額。':'退回「未到」需要收禮台權限。')+'</p></div>'
+    +'<div class="field"><p class="fieldlabel">備註</p>'
+    +'<textarea class="ta" id="x-note" placeholder="例如：桌次有誤、代領三份、長輩需要輪椅位">'+esc(p.note||"")+'</textarea>'
+    +'<p class="note">備註會直接寫進 Google 試算表的「備註」欄，總召在後台看得到。基本資料如需更改請告知總召。</p></div>'
+    +'<button class="big go" onclick="saveNote('+id+')">儲存備註</button>'
+    +(perms.canEnterAmount?'<button class="big sec" onclick="closeSheet();setTimeout(function(){openGift('+id+')},220)">改紅包編號或金額</button>':'')
+    +(perms.seeTotals?'<button class="big sec" onclick="openFixEdit('+id+')">總召：修改基本資料</button>':'')
+    +'<button class="big sec" onclick="closeSheet()">關閉</button>'
+    +'</div>'
+  openSheet()
+}
+async function saveNote(id){
+  var v=$("#x-note").value.trim()
+  var back=window._fixBack
+  closeSheet()
+  await send({action:"note",id:id,note:v},function(){var p=byId(id);if(p)p.note=v})
+  toast(v?"備註已儲存":"備註已清除")
+  if(back)setTimeout(back,220)
+}
+
+/* 總召專用：解鎖基本資料 */
+function openFixEdit(id){
+  var p=byId(id);if(!p)return
+  var k=kOf(p)
   window._fixElder=p.elder;window._fixSide=p.side
-  $("#sheetIn").innerHTML='<div class="shead"><h2>更正資料</h2>'
-    +'<div class="rmeta" style="margin-top:6px"><span>'+esc(p.name)+'　'+esc(p.envNo||"未收禮")+'</span></div></div>'
+  $("#sheetIn").innerHTML='<div class="shead"><h2>修改基本資料</h2>'
+    +'<div class="rmeta" style="margin-top:6px"><span>總召權限・請謹慎修改</span></div></div>'
     +'<div class="sbody">'
     +'<div class="field"><p class="fieldlabel">姓名</p><input class="tin" id="x-name" value="'+esc(p.name)+'"></div>'
     +'<div class="field"><p class="fieldlabel">桌次</p><input class="tin" id="x-table" inputmode="numeric" value="'+p.table+'"></div>'
@@ -414,15 +459,8 @@ function openFix(id,back){
     +'<button id="x-k2" '+(k==="2"?'data-on="1"':'')+' onclick="setFixK(\'2\')">款2<br>女方</button>'
     +'<button id="x-k3" '+(k==="3"?'data-on="1"':'')+' onclick="setFixK(\'3\')">款3<br>男方</button>'
     +'</div></div>'
-    +'<div class="field"><p class="fieldlabel">目前進度</p><div class="stages" id="x-stages">'
-    +[0,1,2,3].map(function(s){
-      var can=(s===0&&!perms.canEnterAmount)?'disabled':''
-      return '<button '+(p.stage===s?'data-on="1"':'')+' onclick="setStage('+id+','+s+')" '+can+'>'
-        +STAGE_NAMES[s]+'</button>'}).join("")
-    +'</div><p class="note">點任一格可以直接把這位賓客移到該進度。'
-    +(perms.canEnterAmount?'退回「未到」會一併清除紅包編號與金額。':'退回「未到」需要收禮台權限。')+'</p></div>'
-    +'<button class="big go" onclick="saveFix('+id+')">儲存更正</button>'
-    +'<button class="big sec" onclick="closeSheet()">取消</button>'
+    +'<button class="big go" onclick="saveFix('+id+')">儲存修改</button>'
+    +'<button class="big sec" onclick="closeSheet();setTimeout(function(){openFix('+id+')},220)">返回</button>'
     +'</div>'
   openSheet()
 }
@@ -437,12 +475,10 @@ async function saveFix(id){
   var tb=Number($("#x-table").value.trim())||0
   var pt=Number($("#x-party").value.trim())||1
   var el=window._fixElder,sd=window._fixSide
-  var back=window._fixBack
   closeSheet()
   await send({action:"fix",id:id,name:nm,table:tb,party:pt,elder:el,side:sd},function(){
     var p=byId(id);if(p){p.name=nm;p.table=tb;p.party=pt;p.elder=el;p.side=sd}})
   toast("已更正")
-  if(back)setTimeout(back,220)
 }
 async function setStage(id,s){
   closeSheet()
@@ -462,8 +498,10 @@ function nextEnvPreview(side){
 function renderGift(w){
   if(shellRole!==role){
     w.innerHTML='<div class="kpis" id="k1"></div>'
+      +'<p class="sect" id="recent-t" style="display:none">剛剛完成・點一下可修改</p>'
+      +'<div class="recent" id="recent"></div>'
       +'<div class="searchwrap"><input id="q" placeholder="輸入賓客姓名" autocomplete="off" autocorrect="off" spellcheck="false">'
-      +'<button class="clr" id="clr">✕</button></div><div id="results"></div>'
+      +'<button class="clr" id="clr">✕</button></div><p class="hint" id="hint"></p><div id="results"></div>'
       +'<div class="util" style="margin-top:6px"><button id="wi">＋ 新增名單外賓客</button></div>'
     shellRole=role
     var q=$("#q")
@@ -474,20 +512,34 @@ function renderGift(w){
     $("#wi").onclick=function(){walkinForm()}
     setTimeout(function(){q.focus()},60)
   }
-  paintKpis();paintResults()
+  paintKpis();paintRecent();paintResults()
+}
+function paintRecent(){
+  var side=role==="gF"?"女":"男"
+  var last=rows.filter(function(p){return p.side===side&&p.stage>0}).slice(-3).reverse()
+  var t=$("#recent-t"),box=$("#recent")
+  if(!box)return
+  t.style.display=last.length?"block":"none"
+  box.innerHTML=last.map(function(p){
+    var k=kOf(p)
+    return '<button class="rcard k'+k+'" onclick="openGift('+p.id+')">'
+      +'<span class="rb"></span><span class="rt"><b>'+esc(p.name)+'</b>'
+      +'<span>'+esc(p.envNo)+'　第 '+p.table+' 桌'
+      +(p.amount!=null?'　NT$ '+p.amount.toLocaleString():'　金額未填')+'</span></span>'
+      +'<span class="re">修改</span></button>'}).join("")
 }
 function paintKpis(){
   var side=role==="gF"?"女":"男"
   var mine=rows.filter(function(p){return p.side===side})
   var done=mine.filter(function(p){return p.stage>0}).length
   var html='<div class="kpi"><div class="k">本台已收</div><div class="v">'+done
-    +'<span style="font-size:15px;color:var(--dim)"> / '+mine.length+'</span></div>'
+    +'<span style="font-size:17px;color:var(--dim)"> / '+mine.length+'</span></div>'
     +'<div class="s">下一號 '+nextEnvPreview(side)+'</div></div>'
   if(perms.canEnterAmount){
     var sum=mine.filter(function(p){return p.amount!=null}).reduce(function(a,p){return a+p.amount},0)
     var pend=mine.filter(function(p){return p.stage>0&&p.amount==null}).length
     html+='<div class="kpi"><div class="k">'+side+'方小計</div>'
-      +'<div class="v" style="font-size:26px">'+sum.toLocaleString()+'</div>'
+      +'<div class="v" style="font-size:29px">'+sum.toLocaleString()+'</div>'
       +'<div class="s">'+pend+' 筆待補金額</div></div>'
   }
   $("#k1").className=perms.canEnterAmount?"kpis":"kpis one"
@@ -508,9 +560,12 @@ function paintResults(){
       +'<div class="rmeta"><span class="chip k'+k+'">'+esc(kName(k))+'</span><span>第 '+p.table+' 桌</span>'
       +(p.party>1?'<span>共 '+p.party+' 位</span>':'')
       +(p.stage>0?'<span class="chip ok">'+esc(p.envNo)+' · '+STAGE_NAMES[p.stage]+'</span>':'')+'</div></div>'
-      +'<div class="rowgo">'+(p.stage>0?"✎":"›")+'</div></div>'}).join("")
+      +'<div class="rowgo'+(p.stage>0?" edit":"")+'">'+(p.stage>0?"修改<br>金額":"›")+'</div></div>'}).join("")
     :'<div class="empty">'+(q?'名單上沒有「'+esc(q)+'」':'輸入姓名開始收禮')
       +'<br>可用下方按鈕新增名單外賓客</div>'
+  var hint=$("#hint")
+  if(hint)hint.innerHTML = q ? ''
+    : '搜尋框空白時，這裡列出最近完成的幾筆。<br>金額或編號打錯，直接點該列右側的「修改金額」即可更正；找更早的人請直接搜尋姓名。'
 }
 function openGift(id){
   var p=byId(id);if(!p)return
@@ -527,13 +582,13 @@ function openGift(id){
     +'<div class="sbody">'
     +'<div class="field"><p class="fieldlabel">紅包編號</p>'
     +'<input class="tin" id="f-no" value="'+esc(no)+'" '+(p.stage>0?'':'readonly')+'>'
-    +'<p class="note">'+(p.stage>0?'可手動修正。':'完成收禮時由伺服器統一發號，兩台不會撞號。')+'</p></div>'
+    +'<p class="note">'+(p.stage>0?'已發號，可直接在此修正。':'完成收禮時由伺服器統一發號，兩台不會撞號。')+'</p></div>'
     +'<div class="field"><p class="fieldlabel">攜伴人數（含本人）</p>'
     +'<input class="tin" id="f-party" inputmode="numeric" value="'+(p.party||1)+'"></div>'
     +amtField
     +'<button class="big go" onclick="doneGift('+id+')">'
     +(p.stage>0?"儲存修改":"完成收禮　→　送到發餅台")+'</button>'
-    +'<button class="big sec" onclick="openFix('+id+')">更正資料或進度</button>'
+    +'<button class="big sec" onclick="openFix('+id+')">賓客資料與備註</button>'
     +(p.stage>0?'<p class="note">目前進度：'+STAGE_NAMES[p.stage]+'</p>':'')
     +'</div>'
   openSheet()
@@ -553,7 +608,7 @@ async function doneGift(id){
       p.stage=1;p.amount=amt;p.envNo=no;p.party=pt})
     toast("已送出，發餅台會收到通知")
   }
-  var qq=$("#q");if(qq){qq.value="";paintResults();qq.focus()}
+  var qq=$("#q");if(qq){qq.value="";paintRecent();paintResults();qq.focus()}
 }
 
 /* 新增賓客 */
@@ -607,7 +662,7 @@ function renderBox(w){
       +(cur.party>1?'<span class="badge n">共 '+cur.party+' 位</span>':'')
       +'<span class="badge n">'+esc(cur.envNo)+'</span></div>'
       +'<button class="act" onclick="gaveBox('+cur.id+')">確認發出喜餅</button>'
-      +'<button class="act sec" onclick="openFix('+cur.id+')">更正這一筆</button>'
+      +'<button class="act sec" onclick="openFix('+cur.id+')">賓客資料與備註</button>'
       +'</div>'
       +(q.length>1?'<div class="nextup">接下來還有 <b>'+(q.length-1)+'</b> 位等待領餅</div>':'')
       +'</div>'
@@ -642,7 +697,7 @@ function openBoxRoster(k){
       return '<button class="rc '+cls+'" onclick="openFix('+p.id+',function(){openBoxRoster(\''+k+'\')})">'
         +'<div class="rn">'+esc(p.name)+'</div>'
         +'<div class="rs">'+st+'　'+p.table+'桌</div></button>'}).join("")
-    +'</div><p class="note">刪去線代表已領取。點任何一位可以更正款式或進度。</p>'
+    +'</div><p class="note">刪去線代表已領取。點任何一位可查看資料、改進度或加備註。</p>'
     +'<button class="big sec" onclick="closeSheet()">關閉</button></div>'
   openSheet()
 }
@@ -669,7 +724,7 @@ function renderUsher(w){
       +'<span class="badge n">'+cur.side+'方'+esc(cur.rel)+'</span>'
       +'<span class="badge n">同桌已到 '+same+' 人</span></div>'
       +'<button class="act" onclick="seat('+cur.id+')">確認已入席</button>'
-      +'<button class="act sec" onclick="openFix('+cur.id+')">更正這一筆</button>'
+      +'<button class="act sec" onclick="openFix('+cur.id+')">賓客資料與備註</button>'
       +'</div>'
       +(q.length>1?'<div class="nextup">接下來還有 <b>'+(q.length-1)+'</b> 位等待帶位</div>':'')
       +'</div>'
@@ -704,7 +759,7 @@ function openTableRoster(t){
       return '<button class="rc '+cls+'" onclick="openFix('+p.id+',function(){openTableRoster('+t+')})">'
         +'<div class="rn">'+esc(p.name)+'</div>'
         +'<div class="rs">'+st+(p.party>1?'　'+p.party+'位':'')+'</div></button>'}).join("")
-    +'</div><p class="note">刪去線代表已入席。點任何一位可以更正桌次、攜伴人數或進度。</p>'
+    +'</div><p class="note">刪去線代表已入席。點任何一位可查看資料、改進度或加備註。</p>'
     +'<button class="big sec" onclick="closeSheet()">關閉</button></div>'
   openSheet()
 }
@@ -749,10 +804,10 @@ function renderDash(w){
 
   w.innerHTML='<div class="kpis">'
     +'<div class="kpi"><div class="k">已到場</div><div class="v">'+arr
-    +'<span style="font-size:15px;color:var(--dim)"> / '+tot+'</span></div><div class="s">'+pct+'%</div>'
+    +'<span style="font-size:17px;color:var(--dim)"> / '+tot+'</span></div><div class="s">'+pct+'%</div>'
     +'<div class="track"><i style="width:'+pct+'%"></i></div></div>'
     +'<div class="kpi"><div class="k">已入席桌數</div><div class="v">'+seatedT
-    +'<span style="font-size:15px;color:var(--dim)"> / '+tables.length+'</span></div>'
+    +'<span style="font-size:17px;color:var(--dim)"> / '+tables.length+'</span></div>'
     +'<div class="s">已就座 '+seated+' 人</div></div></div>'
     +'<div class="callout '+(need?"wait":"go")+'">'
     +(need?'距離 70% 開席目標（約 '+target+' 人）還差 <b>'+need+'</b> 人。'
@@ -777,10 +832,10 @@ function renderDash(w){
       +'<p class="note">完整資料隨時在 Google 試算表裡，這裡只是備份用。</p></div>':'')
 }
 function exportCSV(){
-  var head=["編號","姓名","方","關係","桌次","攜伴","喜餅款式","狀態","金額"]
+  var head=["編號","姓名","方","關係","桌次","攜伴","喜餅款式","狀態","金額","備註"]
   var body=rows.map(function(p){
     return [p.envNo,p.name,p.side,p.rel,p.table,p.party||1,kName(kOf(p)),
-      STAGE_NAMES[p.stage],p.amount==null?"":p.amount].join(",")})
+      STAGE_NAMES[p.stage],p.amount==null?"":p.amount,(p.note||"").replace(/,/g,"、")].join(",")})
   var csv="\ufeff"+[head.join(",")].concat(body).join("\n")
   var a=document.createElement("a")
   a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}))
