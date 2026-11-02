@@ -348,6 +348,9 @@ var STAGE_NAMES=["未到","待發餅","待入席","已入席"]
 
 var rows=[],rev=-1,role=null,code=""
 var perms={roles:[],seeTotals:false,canEnterAmount:false}
+/* 共用狀態（這一行缺了會造成 ReferenceError） */
+var prevIds=new Set(), audioCtx=null, shellRole=null,
+    composing=false, sheetOpen=false, outbox=[], boxQ=""
 var boxNames={
   '1':'卡柏蒂 CUPETIT',
   '2':'卡柏蒂 ＋ 赫拉（大）',
@@ -423,17 +426,20 @@ function ping(){
 
 /* ---------- 通行碼 ---------- */
 function checkNotes(){
-  if(!perms.seeTotals)return
-  var cur={},fresh=[]
-  rows.forEach(function(p){ if(p.note&&p.note.trim()){ cur[p.id]=p.note
-    if(noteSeen&&noteSeen[p.id]!==p.note)fresh.push(p) } })
-  if(noteSeen&&fresh.length){
-    ping()
-    toast(fresh.length===1 ? "新備註　"+fresh[0].name+"：" + fresh[0].note.slice(0,14)
-                           : "有 "+fresh.length+" 則新備註")
-  }
-  noteSeen=cur
+  try{
+    if(!perms.seeTotals)return
+    var cur={},fresh=[]
+    rows.forEach(function(p){ if(p.note&&p.note.trim()){ cur[p.id]=p.note
+      if(noteSeen&&noteSeen[p.id]!==p.note)fresh.push(p) } })
+    if(noteSeen&&fresh.length){
+      ping()
+      toast(fresh.length===1 ? "新備註　"+fresh[0].name+"：" + fresh[0].note.slice(0,14)
+                             : "有 "+fresh.length+" 則新備註")
+    }
+    noteSeen=cur
+  }catch(e){ try{console.error("[checkNotes]",e)}catch(_){} }
 }
+var noteSeen=null
 var CACHE_KEY="wedCache_v1", OUTBOX_KEY="wedOutbox_v1", cacheTs=0, fromCache=false
 function saveCache(){
   try{
@@ -482,9 +488,13 @@ function tryCode(){
       loadOutbox();failStreak=0
       $("#gate").classList.remove("on");showPicker();startPolling()
     })
-    .catch(function(){
-      $("#code-err").textContent="伺服器忙線中，請等五秒再按一次進入"
-      code=""
+    .catch(function(err){
+      try{console.error("[login]",err)}catch(e){}
+      var net=(err&&(err.name==="AbortError"||err.name==="TypeError"))
+      $("#code-err").textContent = net
+        ? "伺服器忙線中，請等五秒再按一次進入"
+        : "程式發生錯誤：" + ((err&&err.message)||err)
+      if(net)code=""
     })
 }
 function logout(){
@@ -985,7 +995,6 @@ function renderBox(w){
   paintBoxSearch()
   prevIds=ids
 }
-var boxQ=""
 function paintBoxSearch(){
   var box=$("#bres");if(!box)return
   var q=boxQ.trim()
@@ -1299,9 +1308,13 @@ $("#code-in").addEventListener("keydown",function(e){if(e.key==="Enter")tryCode(
       }else{ render() }
       startPolling()
     })
-    .catch(function(){
+    .catch(function(err){
+      try{console.error("[autologin]",err)}catch(e){}
       if(fromCache){ setNet("off"); return }   // 已用快取開起來，繼續離線作業
-      $("#code-err").textContent="伺服器忙線中，請按下方進入重試"
+      var net=(err&&(err.name==="AbortError"||err.name==="TypeError"))
+      $("#code-err").textContent = net
+        ? "伺服器忙線中，請按下方進入重試"
+        : "程式發生錯誤：" + ((err&&err.message)||err)
       $("#code-in").value=saved
     })
 })()
