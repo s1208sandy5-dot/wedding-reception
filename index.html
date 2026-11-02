@@ -68,7 +68,9 @@ input{font-family:inherit;font-size:inherit}
 .top .who{flex:1;min-width:0}
 .top .who b{display:block;font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:.05em}
 .top .who i{font-style:normal;font-size:12px;color:var(--dim);letter-spacing:.16em}
-.net{font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;background:var(--okbg);color:var(--ok);letter-spacing:.04em}
+.net{font-size:11px;font-weight:700;padding:5px 10px;border-radius:20px;background:var(--okbg);color:var(--ok);letter-spacing:.04em}
+.pendbtn{display:inline-block;margin-top:9px;background:var(--warn);color:#fff;font-size:14px;
+  font-weight:700;padding:9px 14px;border-radius:20px}
 .net.off{background:var(--warnbg);color:var(--warn)}
 .swap{padding:8px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-size:14px;color:var(--ink2)}
 .wrap{padding:16px 16px 110px}
@@ -323,7 +325,7 @@ input{font-family:inherit;font-size:inherit}
 
 <div class="top" id="top" style="display:none">
   <div class="who"><b id="roleName"></b><i id="roleSub"></i></div>
-  <span class="net" id="net">連線中</span>
+  <button class="net" id="net" onclick="openOutbox()">連線中</button>
   <button class="swap" onclick="backToPick()">切換</button>
 </div>
 <div class="wrap" id="wrap"></div>
@@ -600,19 +602,59 @@ async function send(action,optimistic){
     if(failed){await pull();render()}
   }
 }
+/* 補送暫存：成功才移除，伺服器回錯誤不再默默丟掉 */
 async function flushOutbox(){
-  if(!outbox.length)return
-  var pending=outbox.slice();outbox=[];saveOutbox()
+  if(!outbox.length||netBusy)return
   netBusy=true
+  var sent=0, kept=[], stopped=false
   try{
+    var pending=outbox.slice()
     for(var i=0;i<pending.length;i++){
+      var it=pending[i]
+      if(stopped){kept.push(it);continue}
       try{
-        var d=await apiPost(pending[i])
-        if(d&&d.ok)applyPayload(d)
-      }catch(e){outbox=outbox.concat(pending.slice(i));saveOutbox();break}
+        var d=await apiPost(it)
+        if(d&&d.ok){ applyPayload(d); sent++ }
+        else{
+          it._tries=(it._tries||0)+1
+          it._err=(d&&d.error)||"未知錯誤"
+          kept.push(it)                      // 伺服器拒絕：保留，不丟棄
+        }
+      }catch(e){
+        kept.push(it); stopped=true           // 連線又斷了：這筆與其後全部留著
+      }
     }
-  }finally{ netBusy=false;saveOutbox() }
-  if(!outbox.length&&pending.length){setNet("ok");toast("暫存的 "+pending.length+" 筆已全部補送完成");render()}
+    outbox=kept; saveOutbox()
+  }finally{ netBusy=false }
+  if(sent){ setNet(outbox.length?"off":"ok"); render() }
+  if(sent&&!outbox.length) toast("暫存的 "+sent+" 筆已全部補送完成")
+  else if(sent&&outbox.length) toast("補送 "+sent+" 筆，還有 "+outbox.length+" 筆未成功")
+  else if(outbox.length&&!stopped) toast("有 "+outbox.length+" 筆補送被拒絕，請點「待回傳」查看")
+}
+/* 檢視待回傳的暫存，可手動重送或放棄 */
+function openOutbox(){
+  if(!outbox.length){toast("目前沒有待回傳的資料");return}
+  $("#sheetIn").innerHTML='<div class="shead"><h2>待回傳資料</h2>'
+    +'<div class="rmeta" style="margin-top:6px"><span>共 '+outbox.length+' 筆尚未寫入試算表</span></div></div>'
+    +'<div class="sbody">'
+    +'<div class="ro">'+outbox.map(function(it){
+      var p=byId(it.id)
+      var what = it.action==="stage" ? ("改為「"+(STAGE_NAMES[it.stage]||it.stage)+"」")
+               : it.action==="checkin" ? "完成收禮"
+               : it.action==="note" ? "備註"
+               : it.action==="add" ? "新增賓客"
+               : it.action
+      return '<div class="r"><span>'+esc((p&&p.name)||it.name||("#"+it.id))+'</span>'
+        +'<b>'+esc(what)+(it._err?'<br><span style="font-size:13px;color:var(--warn)">'+esc(it._err)+'</span>':'')+'</b></div>'
+    }).join("")+'</div>'
+    +'<button class="big go" onclick="closeSheet();setTimeout(flushOutbox,200)">立即重送</button>'
+    +'<button class="big warn" onclick="dropOutbox()">放棄這些資料</button>'
+    +'<p class="note">「放棄」會永久刪除這些尚未寫入的紀錄，只有確定要手動補登時才使用。</p>'
+    +'<button class="big sec" onclick="closeSheet()">關閉</button></div>'
+  openSheet()
+}
+function dropOutbox(){
+  outbox=[];saveOutbox();closeSheet();render();toast("已清空待回傳資料")
 }
 function startPolling(){
   if(pollRunning)return          // 防止登出再登入時啟動第二個迴圈
@@ -931,8 +973,9 @@ function offlineBanner(){
   if(pend||failStreak>0){
     return '<div class="callout wait" style="margin-bottom:14px">'
       +'<b>目前離線作業中</b>　資料來自本機'+(cacheTs?'（最後更新 '+cacheAge()+'）':'')+'。'
-      +(pend?'已暫存 <b>'+pend+'</b> 筆待回傳，':'')
-      +'照常發餅即可，連上線會自動補送。<b>不要重複點同一個人。</b></div>'
+      +'照常作業即可，連上線會自動補送。<b>不要重複點同一個人。</b>'
+      +(pend?'<br><button class="pendbtn" onclick="openOutbox()">待回傳 '+pend+' 筆・點此查看</button>':'')
+      +'</div>'
   }
   return ""
 }
