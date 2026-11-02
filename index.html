@@ -16,9 +16,10 @@
   --line:#D3E4E6; --line2:#B4D0D4;
   --ink:#10353C; --ink2:#3B646D; --muted:#79979E; --dim:#9BB6BB;
   --aqua:#2C8194; --aqua-d:#1B6273; --aqua-l:#DEEEF1;
-  --k1:#A98443; --k1bg:#F7F1E3; --k1l:#EBDFC4;
-  --k2:#6C8CC0; --k2bg:#EBF0F9; --k2l:#D5E0F1;
-  --k3:#22798A; --k3bg:#E1EFF1; --k3l:#C8E1E5;
+  --k1:#A98443; --k1bg:#F7F1E3; --k1l:#EBDFC4;   /* 卡柏蒂 */
+  --k2:#B0603A; --k2bg:#FAEDE5; --k2l:#F0D5C4;   /* 卡柏蒂＋赫拉大 */
+  --k3:#6E9AD0; --k3bg:#EBF2FB; --k3l:#D3E2F4;   /* 赫拉小 */
+  --k4:#1E6B7A; --k4bg:#E0EEF1; --k4l:#C4DEE4;   /* 赫拉大 */
   --ok:#2A8474; --okbg:#E2F2EF; --warn:#B9713F; --warnbg:#FAEFE6;
   --ivory:#F6F1E6;
   --r:16px;
@@ -77,15 +78,25 @@ input{font-family:inherit;font-size:inherit}
 /* now-serving */
 .now{background:var(--surface);border-radius:20px;border:1px solid var(--line);overflow:hidden;margin-bottom:22px}
 .now .strip{height:6px}
-.now.k1 .strip{background:var(--k1)} .now.k2 .strip{background:var(--k2)} .now.k3 .strip{background:var(--k3)}
+.now.k1 .strip{background:var(--k1)} .now.k2 .strip{background:var(--k2)}
+.now.k3 .strip{background:var(--k3)} .now.k4 .strip{background:var(--k4)}
 .now.plain .strip{background:var(--aqua)}
 .now .body{padding:22px 20px 20px;text-align:center}
 .nowlabel{font-size:11px;letter-spacing:.34em;text-indent:.34em;color:var(--dim);margin-bottom:15px}
 .nowname{font-family:var(--serif);font-size:41.5px;font-weight:500;line-height:1.2;letter-spacing:.06em;word-break:break-all}
 .nowmeta{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:14px}
+.nowitems{margin-top:18px}
+.nowitems .item{display:flex;align-items:center;justify-content:center;gap:10px;
+  font-family:var(--serif);font-size:24px;font-weight:500;padding:9px 0}
+.nowitems .item+.item{border-top:1px dashed var(--line2)}
+.nowitems .item .num{flex:0 0 26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;
+  font-family:var(--sans);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.nowitems .dbl{margin-top:10px;background:var(--k2bg);color:var(--k2);border:1px solid var(--k2l);
+  border-radius:11px;padding:9px 12px;font-size:14px;font-weight:700}
 .badge{padding:5px 13px;border-radius:22px;font-size:14.5px;font-weight:500}
 .badge.k1{background:var(--k1bg);color:var(--k1)} .badge.k2{background:var(--k2bg);color:var(--k2)}
 .badge.k3{background:var(--k3bg);color:var(--k3)}
+.badge.k4{background:var(--k4bg);color:var(--k4)}
 .badge.n{background:var(--tint);color:var(--ink2)}
 .bigtable{font-family:var(--disp);font-size:83px;font-weight:400;line-height:.9;color:var(--aqua-d);letter-spacing:.01em}
 .bigtable small{font-size:21.5px;font-weight:400;color:var(--muted);margin-left:6px}
@@ -105,7 +116,8 @@ input{font-family:inherit;font-size:inherit}
 .cat{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--surface);
   border:1px solid var(--line);border-radius:var(--r);padding:15px 16px}
 .cat .dot{flex:0 0 10px;height:38px;border-radius:6px}
-.cat.k1 .dot{background:var(--k1)} .cat.k2 .dot{background:var(--k2)} .cat.k3 .dot{background:var(--k3)}
+.cat.k1 .dot{background:var(--k1)} .cat.k2 .dot{background:var(--k2)}
+.cat.k3 .dot{background:var(--k3)} .cat.k4 .dot{background:var(--k4)}
 .cat .nm{flex:1;min-width:0}
 .cat .nm b{display:block;font-size:17.5px;font-weight:500}
 .cat .nm span{font-size:13.5px;color:var(--muted)}
@@ -114,7 +126,8 @@ input{font-family:inherit;font-size:inherit}
 .cat .ct span{font-size:13.5px;color:var(--muted)}
 .mini{height:4px;border-radius:4px;background:var(--tint);margin-top:8px;overflow:hidden}
 .mini i{display:block;height:100%;border-radius:4px}
-.cat.k1 .mini i{background:var(--k1)} .cat.k2 .mini i{background:var(--k2)} .cat.k3 .mini i{background:var(--k3)}
+.cat.k1 .mini i{background:var(--k1)} .cat.k2 .mini i{background:var(--k2)}
+.cat.k3 .mini i{background:var(--k3)} .cat.k4 .mini i{background:var(--k4)}
 
 .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:9px}
 .tcard{aspect-ratio:1;border-radius:14px;border:1px solid var(--line);background:var(--surface);
@@ -153,13 +166,15 @@ input{font-family:inherit;font-size:inherit}
 .row.done{background:var(--surface2)}
 .row.done .rname{color:var(--ink2)}
 .bar{flex:0 0 7px}
-.bar.k1{background:var(--k1)} .bar.k2{background:var(--k2)} .bar.k3{background:var(--k3)}
+.bar.k1{background:var(--k1)} .bar.k2{background:var(--k2)}
+.bar.k3{background:var(--k3)} .bar.k4{background:var(--k4)}
 .rowmain{flex:1;padding:12px 14px;min-width:0}
 .rname{font-size:20px;font-weight:500}
 .rmeta{font-size:13.5px;color:var(--muted);margin-top:3px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 .chip{padding:1px 7px;border-radius:20px;font-size:12px;font-weight:700}
 .chip.k1{background:var(--k1bg);color:var(--k1)} .chip.k2{background:var(--k2bg);color:var(--k2)}
 .chip.k3{background:var(--k3bg);color:var(--k3)}
+.chip.k4{background:var(--k4bg);color:var(--k4)}
 .chip.ok{background:var(--okbg);color:var(--ok)}
 .chip.nf{background:var(--tint);color:var(--aqua-d)}
 .rowgo{flex:0 0 62px;display:flex;align-items:center;justify-content:center;color:var(--dim);
@@ -186,6 +201,12 @@ input{font-family:inherit;font-size:inherit}
 .amts{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:8px}
 .amts button{padding:11px 2px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-size:16px;font-weight:500}
 .seg{display:flex;gap:7px}
+.seg4{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg4 button{padding:14px 6px;border-radius:12px;background:var(--surface);border:1px solid var(--line);
+  font-size:14px;font-weight:500;color:var(--muted);line-height:1.45}
+.seg4 button[data-on="1"]{background:var(--aqua-l);border-color:var(--aqua);color:var(--aqua-d);font-weight:700}
+.twotag{display:inline-block;margin-left:6px;background:rgba(176,96,58,.14);color:var(--k2);
+  font-size:12px;font-weight:700;padding:1px 7px;border-radius:20px;vertical-align:1px}
 .seg button{flex:1;padding:12px 4px;border-radius:11px;background:var(--surface);border:1px solid var(--line);
   font-size:15px;font-weight:500;color:var(--muted)}
 .seg button[data-on="1"]{background:var(--aqua-l);border-color:var(--aqua);color:var(--aqua-d);font-weight:700}
@@ -240,6 +261,7 @@ input{font-family:inherit;font-size:inherit}
 .g2 .c.k1{background:var(--k1bg);border-color:var(--k1l)} .g2 .c.k1 .vl{color:var(--k1)}
 .g2 .c.k2{background:var(--k2bg);border-color:var(--k2l)} .g2 .c.k2 .vl{color:var(--k2)}
 .g2 .c.k3{background:var(--k3bg);border-color:var(--k3l)} .g2 .c.k3 .vl{color:var(--k3)}
+.g2 .c.k4{background:var(--k4bg);border-color:var(--k4l)} .g2 .c.k4 .vl{color:var(--k4)}
 .ta{display:block;width:100%;min-height:132px;padding:15px 16px;border-radius:14px;background:var(--surface);
   border:1px solid var(--line2);color:var(--ink);font-size:19px;font-family:inherit;line-height:1.65;
   outline:none;resize:vertical}
@@ -251,7 +273,8 @@ input{font-family:inherit;font-size:inherit}
 .rcard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface2);
   border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:8px}
 .rcard .rb{flex:0 0 5px;height:36px;border-radius:4px}
-.rcard.k1 .rb{background:var(--k1)} .rcard.k2 .rb{background:var(--k2)} .rcard.k3 .rb{background:var(--k3)}
+.rcard.k1 .rb{background:var(--k1)} .rcard.k2 .rb{background:var(--k2)}
+.rcard.k3 .rb{background:var(--k3)} .rcard.k4 .rb{background:var(--k4)}
 .rcard .rt{flex:1;min-width:0}
 .rcard .rt b{display:block;font-size:19px;font-weight:500}
 .rcard .rt span{font-size:13.5px;color:var(--muted)}
@@ -325,17 +348,46 @@ var STAGE_NAMES=["未到","待發餅","待入席","已入席"]
 
 var rows=[],rev=-1,role=null,code=""
 var perms={roles:[],seeTotals:false,canEnterAmount:false}
-var boxNames={'1':'卡柏蒂 CUPETIT','2':'赫拉（小）','3':'赫拉（大）'}
-var boxWho={'1':'女方長輩','2':'男方長輩','3':'男方・女方'}
+var boxNames={
+  '1':'卡柏蒂 CUPETIT',
+  '2':'卡柏蒂 ＋ 赫拉（大）',
+  '3':'赫拉（小）',
+  '4':'赫拉（大）'}
+var boxWho={'1':'女方長輩','2':'女方長輩・雙盒','3':'男方長輩','4':'男方・女方'}
+/* 每一組實際要拿幾個盒子，用於訂購數量與發餅提示 */
+var boxItems={
+  '1':['卡柏蒂 CUPETIT'],
+  '2':['卡柏蒂 CUPETIT','赫拉（大）'],
+  '3':['赫拉（小）'],
+  '4':['赫拉（大）']}
+var PRODUCTS=['卡柏蒂 CUPETIT','赫拉（小）','赫拉（大）']
 function kWho(k){return boxWho[k]||''}
-var prevIds=new Set(),audioCtx=null,shellRole=null,composing=false,sheetOpen=false,outbox=[]
-var noteSeen=null
-
-function kOf(p){
-  if(p.side==="女"&&p.elder)return "1"   // 卡柏蒂 CUPETIT
-  if(p.side==="男"&&p.elder)return "2"   // 赫拉（小）
-  return "3"                              // 赫拉（大）
+function kItems(k){return boxItems[k]||[]}
+function isDouble(k){return kItems(k).length>1}
+function normK(v){
+  if(v===undefined||v===null)return ""
+  v=String(v).trim()
+  if(v==="1"||v==="2"||v==="3"||v==="4")return v
+  if(!v)return ""
+  var u=v.toUpperCase()
+  var hasCup=(v.indexOf("卡")>=0||u.indexOf("CUPETIT")>=0)
+  var hasBig=(v.indexOf("大")>=0)
+  if(v.indexOf("雙")>=0||(hasCup&&hasBig))return "2"
+  if(hasCup)return "1"
+  if(v.indexOf("小")>=0)return "3"
+  if(hasBig)return "4"
+  return ""
 }
+/* 「喜餅指定」欄有填就以它為準；留空才依方與長輩推導 */
+function kOf(p){
+  var o=normK(p.boxSet)
+  if(o)return o
+  if(p.side==="女"&&p.elder)return "1"   // 卡柏蒂
+  if(p.side==="男"&&p.elder)return "3"   // 赫拉（小）
+  return "4"                              // 赫拉（大）
+}
+var K_LIST=["1","2","3","4"]
+var K_CANON={'1':'卡柏蒂','2':'卡柏蒂+赫拉大','3':'赫拉小','4':'赫拉大'}
 function kName(k){return boxNames[k]||("款"+k)}
 var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -639,16 +691,17 @@ function openFixEdit(id){
   var p=byId(id);if(!p)return
   var k=kOf(p)
   window._fixElder=p.elder;window._fixSide=p.side;window._fixNoFee=!!p.noFee
+  window._fixBoxSet=normK(p.boxSet)?K_CANON[normK(p.boxSet)]:""
   $("#sheetIn").innerHTML='<div class="shead"><h2>修改基本資料</h2>'
     +'<div class="rmeta" style="margin-top:6px"><span>總召權限・請謹慎修改</span></div></div>'
     +'<div class="sbody">'
     +'<div class="field"><p class="fieldlabel">姓名</p><input class="tin" id="x-name" value="'+esc(p.name)+'"></div>'
     +'<div class="field"><p class="fieldlabel">桌次</p><input class="tin" id="x-table" inputmode="numeric" value="'+p.table+'"></div>'
     +'<div class="field"><p class="fieldlabel">攜伴人數（不含本人）</p><input class="tin" id="x-plus" inputmode="numeric" value="'+(Number(p.plus)||0)+'"></div>'
-    +'<div class="field"><p class="fieldlabel">喜餅款式</p><div class="seg">'
-    +'<button id="x-k1" '+(k==="1"?'data-on="1"':'')+' onclick="setFixK(\'1\')">卡柏蒂<br>女方長輩</button>'
-    +'<button id="x-k2" '+(k==="2"?'data-on="1"':'')+' onclick="setFixK(\'2\')">赫拉小<br>男方長輩</button>'
-    +'<button id="x-k3" '+(k==="3"?'data-on="1"':'')+' onclick="setFixK(\'3\')">赫拉大<br>男方・女方</button>'
+    +'<div class="field"><p class="fieldlabel">喜餅款式</p><div class="seg4">'
+    +K_LIST.map(function(n){
+      return '<button id="x-k'+n+'" '+(k===n?'data-on="1"':'')+' onclick="setFixK(\''+n+'\')">'
+        +esc(boxNames[n])+'<br><span style="font-size:12.5px;opacity:.75">'+esc(kWho(n))+'</span></button>'}).join("")
     +'</div></div>'
     +'<div class="field"><p class="fieldlabel">收禮方式</p><div class="seg">'
     +'<button id="x-fee" '+(p.noFee?'':'data-on="1"')+' onclick="setFixFee(false)">要收紅包</button>'
@@ -663,9 +716,8 @@ function setFixFee(v){window._fixNoFee=v
   if(v){$("#x-nofee").dataset.on="1";$("#x-fee").removeAttribute("data-on")}
   else{$("#x-fee").dataset.on="1";$("#x-nofee").removeAttribute("data-on")}}
 function setFixK(k){
-  window._fixElder=(k==="1"||k==="2")
-  window._fixSide=(k==="1")?"女":(k==="2")?"男":(window._fixSide||"女")
-  ;["1","2","3"].forEach(function(n){
+  window._fixBoxSet=K_CANON[k]||""
+  ;K_LIST.forEach(function(n){
     var el=$("#x-k"+n)
     if(n===k)el.dataset.on="1";else el.removeAttribute("data-on")})
 }
@@ -675,9 +727,9 @@ async function saveFix(id){
   var pt=Number($("#x-plus").value.trim())||0
   var el=window._fixElder,sd=window._fixSide
   closeSheet()
-  var nf=!!window._fixNoFee
-  await send({action:"fix",id:id,name:nm,table:tb,plus:pt,elder:el,side:sd,noFee:nf},function(){
-    var p=byId(id);if(p){p.name=nm;p.table=tb;p.plus=pt;p.elder=el;p.side=sd;p.noFee=nf
+  var nf=!!window._fixNoFee, bs=window._fixBoxSet||""
+  await send({action:"fix",id:id,name:nm,table:tb,plus:pt,elder:el,side:sd,noFee:nf,boxSet:bs},function(){
+    var p=byId(id);if(p){p.name=nm;p.table=tb;p.plus=pt;p.elder=el;p.side=sd;p.noFee=nf;p.boxSet=bs
       if(nf){p.amount=null;p.envNo=p.stage>0?"—":""}}})
   toast(tb>0&&tableHeads(tb)>TABLE_CAP
     ? "已更正，但第 "+tb+" 桌已達 "+tableHeads(tb)+" 位，超過上限 "+TABLE_CAP
@@ -826,17 +878,17 @@ function setWiFee(v){wiNoFee=v
   if(v){$("#w-nofee").dataset.on="1";$("#w-fee").removeAttribute("data-on")}
   else{$("#w-fee").dataset.on="1";$("#w-nofee").removeAttribute("data-on")}}
 function walkinForm(target){
-  wiK = "3";wiNoFee=(target==="box")
+  wiK = "4";wiNoFee=(target==="box")
   $("#sheetIn").innerHTML='<div class="shead"><h2>新增賓客</h2>'
     +'<div class="rmeta" style="margin-top:6px"><span>名單外／未預先登記</span></div></div>'
     +'<div class="sbody"><div class="field"><p class="fieldlabel">姓名</p>'
     +'<input class="tin" id="w-name" autocomplete="off"></div>'
     +'<div class="field"><p class="fieldlabel">桌次</p><input class="tin" id="w-table" inputmode="numeric"></div>'
     +'<div class="field"><p class="fieldlabel">攜伴人數（不含本人，一個人填 0）</p><input class="tin" id="w-plus" inputmode="numeric" value="0"></div>'
-    +'<div class="field"><p class="fieldlabel">喜餅款式</p><div class="seg">'
-    +'<button id="w-k1" '+(wiK==="1"?'data-on="1"':'')+' onclick="setWiK(\'1\')">卡柏蒂<br>女方長輩</button>'
-    +'<button id="w-k2" '+(wiK==="2"?'data-on="1"':'')+' onclick="setWiK(\'2\')">赫拉小<br>男方長輩</button>'
-    +'<button id="w-k3" '+(wiK==="3"?'data-on="1"':'')+' onclick="setWiK(\'3\')">赫拉大<br>男方・女方</button>'
+    +'<div class="field"><p class="fieldlabel">喜餅款式</p><div class="seg4">'
+    +K_LIST.map(function(n){
+      return '<button id="w-k'+n+'" '+(wiK===n?'data-on="1"':'')+' onclick="setWiK(\''+n+'\')">'
+        +esc(boxNames[n])+'<br><span style="font-size:12.5px;opacity:.75">'+esc(kWho(n))+'</span></button>'}).join("")
     +'</div></div>'
     +'<div class="field"><p class="fieldlabel">收禮方式</p><div class="seg">'
     +'<button id="w-fee" data-on="1" onclick="setWiFee(false)">要收紅包</button>'
@@ -846,7 +898,7 @@ function walkinForm(target){
     +'<button class="big sec" onclick="closeSheet()">取消</button></div>'
   openSheet();setTimeout(function(){$("#w-name").focus()},250)
 }
-function setWiK(k){wiK=k;["1","2","3"].forEach(function(n){
+function setWiK(k){wiK=k;K_LIST.forEach(function(n){
   var el=$("#w-k"+n);if(n===k)el.dataset.on="1";else el.removeAttribute("data-on")})}
 async function saveWalkin(target){
   var nm=$("#w-name").value.trim()
@@ -854,8 +906,9 @@ async function saveWalkin(target){
   var pt=Number($("#w-plus").value.trim())||0
   if(!nm){toast("請輸入姓名");return}
   closeSheet()
-  var d=await send({action:"add",name:nm,side:wiK==="3"?"男":"女",elder:wiK==="1",
-    rel:target==="box"?"未收禮":"臨時",table:t,plus:pt,noFee:wiNoFee,stage:target==="box"?2:0})
+  var d=await send({action:"add",name:nm,side:wiK==="3"?"男":"女",elder:(wiK==="1"||wiK==="2"||wiK==="3"),
+    rel:target==="box"?"未收禮":"臨時",table:t,plus:pt,noFee:wiNoFee,
+    boxSet:(K_CANON[wiK]||""),stage:target==="box"?2:0})
   if(t>0&&tableHeads(t)>TABLE_CAP)toast("注意：第 "+t+" 桌已達 "+tableHeads(t)+" 位，超過上限 "+TABLE_CAP)
   else if(target==="box")toast("已發餅並送往接待台")
   if(target!=="box"&&d&&d.newId)setTimeout(function(){openGift(d.newId)},200)
@@ -885,7 +938,12 @@ function renderBox(w){
     html+='<div class="now k'+k+'"><div class="strip"></div><div class="body">'
       +'<div class="nowlabel">現在這一位</div>'
       +'<div class="nowname">'+esc(cur.name)+'</div>'
-      +'<div class="nowmeta"><span class="badge k'+k+'">'+esc(kName(k))+'</span>'
+      +'<div class="nowitems">'
+      +kItems(k).map(function(it,ix){
+        return '<div class="item"><span class="num">'+(ix+1)+'</span><span>'+esc(it)+'</span></div>'}).join("")
+      +(isDouble(k)?'<div class="dbl">這一位要拿 '+kItems(k).length+' 盒，請一起交給賓客</div>':'')
+      +'</div>'
+      +'<div class="nowmeta"><span class="badge k'+k+'">'+esc(kWho(k))+'</span>'
       +'<span class="badge n">第 '+cur.table+' 桌</span>'
       +(heads(cur)>1?'<span class="badge n">共 '+heads(cur)+' 位</span>':'')
       +'<span class="badge '+(cur.noFee?'ov':'n')+'">'+(cur.noFee?'免收禮':esc(cur.envNo))+'</span></div>'
@@ -903,13 +961,14 @@ function renderBox(w){
     +'<button class="clr'+(boxQ?" on":"")+'" id="bclr">✕</button></div>'
     +'<div id="bres"></div>'
     +'<p class="sect" style="margin-top:22px">全部款式進度</p><div class="cats">'
-  ;["1","2","3"].forEach(function(k){
+  ;K_LIST.forEach(function(k){
     var all=rows.filter(function(p){return kOf(p)===k})
     var out=all.filter(function(p){return p.stage>=2}).length
     var pc=all.length?Math.round(out/all.length*100):0
     html+='<button class="cat k'+k+'" onclick="openBoxRoster(\''+k+'\')">'
-      +'<span class="dot"></span><span class="nm"><b>'+esc(kName(k))+'</b>'
-      +'<span>尚有 '+(all.length-out)+' 盒未發出</span>'
+      +'<span class="dot"></span><span class="nm"><b>'+esc(kName(k))
+      +(isDouble(k)?'<span class="twotag">2 盒</span>':'')+'</b>'
+      +'<span>'+esc(kWho(k))+'　尚有 '+(all.length-out)+' 組未發</span>'
       +'<span class="mini"><i style="width:'+pc+'%"></i></span></span>'
       +'<span class="ct"><b>'+out+'</b><span> / '+all.length+'</span></span></button>'
   })
@@ -946,6 +1005,7 @@ function paintBoxSearch(){
       +'<div class="bar k'+k+'"></div><div class="rowmain">'
       +'<div class="rname">'+esc(p.name)+'</div>'
       +'<div class="rmeta"><span class="chip k'+k+'">'+esc(kName(k))+'</span>'
+      +(isDouble(k)?'<span class="chip k2">2 盒</span>':'')
       +'<span>第 '+p.table+' 桌</span>'
       +(heads(p)>1?'<span>共 '+heads(p)+' 位</span>':'')
       +(done?'<span class="chip ok">已領取</span>':'')+'</div></div>'
@@ -1075,47 +1135,29 @@ function renderDash(w){
       +(noAmt?'<div class="line" style="color:var(--warn)"><span>尚未登錄金額</span><span><b>'+noAmt+'</b> 筆</span></div>':'')
       +'<p class="note">散場前三個數字要一致：登錄筆數、實際紅包袋數、編號最大值。</p></div>'
   }
-  var boxCard='<div class="card"><h3>喜餅發放</h3>'
-    +["1","2","3"].map(function(k){
+  var prodTot={},prodOut={}
+  PRODUCTS.forEach(function(x){prodTot[x]=0;prodOut[x]=0})
+  rows.forEach(function(p){
+    kItems(kOf(p)).forEach(function(it){
+      if(prodTot[it]===undefined){prodTot[it]=0;prodOut[it]=0}
+      prodTot[it]++
+      if(p.stage>=2)prodOut[it]++
+    })
+  })
+  var boxCard='<div class="card"><h3>喜餅發放・依族群</h3>'
+    +K_LIST.map(function(k){
       var all=rows.filter(function(p){return kOf(p)===k})
       var out=all.filter(function(p){return p.stage>=2}).length
-      return '<div class="line"><span>'+esc(kName(k))+'</span><span><b>'+out+'</b> / '+all.length+' 盒</span></div>'}).join("")
-    +'<p class="note">分母就是訂餅要抓的基準盒數，建議再加一成備品。</p></div>'
-
-  var over=overTables()
-  var overCard=""
-  if(over.length){
-    overCard='<div class="card" style="border-color:#E8C0A4;background:var(--warnbg)">'
-      +'<h3 style="color:var(--warn)">桌次超額<span class="notebadge">'+over.length+'</span></h3>'
-      +over.map(function(t){
-        var h=tableHeads(t)
-        return '<button class="nitem" onclick="openTableRoster('+t+')"><span class="nb">'
-          +'<b>第 '+t+' 桌</b><i>含攜伴共 '+h+' 位，超過上限 '+(h-TABLE_CAP)+' 位</i>'
-          +'<em>'+tableRows(t).length+' 組賓客</em></span><span class="ngo">›</span></button>'}).join("")
-      +'<p class="note" style="color:var(--warn)">每桌上限 '+TABLE_CAP+' 位。點進去可查看該桌名單。</p></div>'
-  }
-  var noted=rows.filter(function(p){return p.note&&p.note.trim()})
-  var noteCard=""
-  if(noted.length){
-    noteCard='<div class="card" style="border-color:#E8C0A4;background:var(--warnbg)">'
-      +'<h3 style="color:var(--warn)">工作人員備註<span class="notebadge">'+noted.length+'</span></h3>'
-      +noted.map(function(p){
-        return '<button class="nitem" onclick="openNote('+p.id+')"><span class="nb"><b>'+esc(p.name)+'</b>'
-          +'<i>'+esc(p.note)+'</i>'
-          +'<em>第 '+p.table+' 桌　'+esc(p.envNo||"未收禮")+'　'+STAGE_NAMES[p.stage]+'</em></span>'
-          +'<span class="ngo">›</span></button>'}).join("")
-      +'<p class="note" style="color:var(--warn)">點任一則可查看完整資料並標記處理完畢。</p></div>'
-  }
-  w.innerHTML=overCard+noteCard+'<div class="kpis">'
-    +'<div class="kpi"><div class="k">已到場</div><div class="v">'+arr
-    +'<span style="font-size:17px;color:var(--dim)"> / '+tot+'</span></div><div class="s">'+pct+'%</div>'
-    +'<div class="track"><i style="width:'+pct+'%"></i></div></div>'
-    +'<div class="kpi"><div class="k">已入席桌數</div><div class="v">'+seatedT
-    +'<span style="font-size:17px;color:var(--dim)"> / '+tables.length+'</span></div>'
-    +'<div class="s">已就座 '+seated+' 人</div></div></div>'
-    +'<div class="callout '+(need?"wait":"go")+'">'
-    +(need?'距離 70% 開席目標（約 '+target+' 人）還差 <b>'+need+'</b> 人。'
-        :'已達 70% 開席目標，可請司儀準備開席。')+'</div>'
+      return '<div class="line"><span><b style="color:var(--k'+k+')">●</b> '+esc(kName(k))
+        +(isDouble(k)?'<span class="twotag">2 盒</span>':'')
+        +'<br><span style="font-size:13px;color:var(--muted)">'+esc(kWho(k))+'</span></span>'
+        +'<span><b>'+out+'</b> / '+all.length+' 組</span></div>'}).join("")
+    +'</div>'
+    +'<div class="card"><h3>實際盒數・訂購用</h3>'
+    +PRODUCTS.map(function(x){
+      return '<div class="line"><span>'+esc(x)+'</span><span><b>'+prodOut[x]+'</b> / '+prodTot[x]+' 盒</span></div>'}).join("")
+    +'<p class="note">這裡是把雙盒那一組拆開後的實際盒數，訂餅就看這三個分母，建議再加一成備品。</p>'
+    +'</div>'
     +'<div class="card"><h3>三關流程狀況</h3><div class="flow">'
     +'<div class="fl"><div class="n">'+bags+'</div><div class="l">① 已收禮</div></div>'
     +'<div class="fl" data-hot="'+(w1>3?1:0)+'"><div class="n">'+w1+'</div><div class="l">待發餅</div></div>'
