@@ -325,11 +325,17 @@ var STAGE_NAMES=["未到","待發餅","待入席","已入席"]
 
 var rows=[],rev=-1,role=null,code=""
 var perms={roles:[],seeTotals:false,canEnterAmount:false}
-var boxNames={'1':'款1・女方長輩','2':'款2・女方','3':'款3・男方'}
+var boxNames={'1':'卡柏蒂 CUPETIT','2':'赫拉（小）','3':'赫拉（大）'}
+var boxWho={'1':'女方長輩','2':'男方長輩','3':'男方・女方'}
+function kWho(k){return boxWho[k]||''}
 var prevIds=new Set(),audioCtx=null,shellRole=null,composing=false,sheetOpen=false,outbox=[]
 var noteSeen=null
 
-function kOf(p){return (p.side==="女") ? (p.elder?"1":"2") : "3"}
+function kOf(p){
+  if(p.side==="女"&&p.elder)return "1"   // 卡柏蒂 CUPETIT
+  if(p.side==="男"&&p.elder)return "2"   // 赫拉（小）
+  return "3"                              // 赫拉（大）
+}
 function kName(k){return boxNames[k]||("款"+k)}
 var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -376,11 +382,40 @@ function checkNotes(){
   }
   noteSeen=cur
 }
+var CACHE_KEY="wedCache_v1", OUTBOX_KEY="wedOutbox_v1", cacheTs=0, fromCache=false
+function saveCache(){
+  try{
+    localStorage.setItem(CACHE_KEY,JSON.stringify({
+      rows:rows,rev:rev,perms:perms,ts:Date.now()}))
+    cacheTs=Date.now()
+  }catch(e){}
+}
+function loadCache(){
+  try{
+    var c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null")
+    if(!c||!c.rows||!c.rows.length)return false
+    rows=c.rows;rev=(c.rev===undefined?-1:c.rev)
+    if(c.perms)perms=c.perms
+    cacheTs=c.ts||0;fromCache=true
+    return true
+  }catch(e){return false}
+}
+function saveOutbox(){
+  try{localStorage.setItem(OUTBOX_KEY,JSON.stringify(outbox))}catch(e){}
+}
+function loadOutbox(){
+  try{var o=JSON.parse(localStorage.getItem(OUTBOX_KEY)||"[]");if(o&&o.length)outbox=o}catch(e){}
+}
+function cacheAge(){
+  if(!cacheTs)return ""
+  var d=new Date(cacheTs)
+  return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)
+}
 function applyPayload(d){
-  if(d.rows)rows=d.rows
+  if(d.rows){rows=d.rows;fromCache=false}
   if(d.rev!==undefined)rev=d.rev
-  if(d.boxNames)boxNames=d.boxNames
   if(d.roles)perms={roles:d.roles,seeTotals:!!d.seeTotals,canEnterAmount:!!d.canEnterAmount}
+  saveCache()
   checkNotes()
 }
 function tryCode(){
@@ -392,7 +427,7 @@ function tryCode(){
       if(!d||!d.ok){$("#code-err").textContent=(d&&d.error)||"通行碼不正確";code="";return}
       applyPayload(d)
       try{localStorage.setItem("wedCode",code)}catch(e){}
-      failStreak=0
+      loadOutbox();failStreak=0
       $("#gate").classList.remove("on");showPicker();startPolling()
     })
     .catch(function(){
@@ -402,7 +437,9 @@ function tryCode(){
 }
 function logout(){
   stopPolling()
-  try{localStorage.removeItem("wedCode");localStorage.removeItem("wedRole")}catch(e){}
+  try{localStorage.removeItem("wedCode");localStorage.removeItem("wedRole")
+      localStorage.removeItem(CACHE_KEY);localStorage.removeItem(OUTBOX_KEY)}catch(e){}
+  outbox=[];fromCache=false;cacheTs=0
   code="";role=null;rows=[];rev=-1;failStreak=0;netBusy=false
   $("#top").style.display="none";$("#wrap").innerHTML=""
   $("#pick").classList.remove("on");$("#code-in").value="";$("#code-err").textContent=""
@@ -485,7 +522,7 @@ async function pull(){
 }
 async function send(action,optimistic){
   action.code=code
-  if(optimistic)optimistic()
+  if(optimistic){optimistic();saveCache()}
   render();setNet("send")
   netBusy=true
   var failed=false
@@ -494,8 +531,8 @@ async function send(action,optimistic){
     if(!d||!d.ok){failed=true;toast((d&&d.error)||"寫入失敗");setNet("off");return}
     applyPayload(d);failStreak=0;setNet("ok");render();return d
   }catch(e){
-    outbox.push(action);failStreak++;setNet("off")
-    toast("網路不穩，已暫存，稍後自動補送")
+    outbox.push(action);saveOutbox();failStreak++;setNet("off")
+    toast("已暫存 "+outbox.length+" 筆，連線後自動補送")
   }finally{
     netBusy=false
     if(failed){await pull();render()}
@@ -503,17 +540,17 @@ async function send(action,optimistic){
 }
 async function flushOutbox(){
   if(!outbox.length)return
-  var pending=outbox.slice();outbox=[]
+  var pending=outbox.slice();outbox=[];saveOutbox()
   netBusy=true
   try{
     for(var i=0;i<pending.length;i++){
       try{
         var d=await apiPost(pending[i])
         if(d&&d.ok)applyPayload(d)
-      }catch(e){outbox=outbox.concat(pending.slice(i));break}
+      }catch(e){outbox=outbox.concat(pending.slice(i));saveOutbox();break}
     }
-  }finally{ netBusy=false }
-  if(!outbox.length){setNet("ok");toast("暫存資料已補送完成");render()}
+  }finally{ netBusy=false;saveOutbox() }
+  if(!outbox.length&&pending.length){setNet("ok");toast("暫存的 "+pending.length+" 筆已全部補送完成");render()}
 }
 function startPolling(){
   if(pollRunning)return          // 防止登出再登入時啟動第二個迴圈
@@ -609,9 +646,9 @@ function openFixEdit(id){
     +'<div class="field"><p class="fieldlabel">桌次</p><input class="tin" id="x-table" inputmode="numeric" value="'+p.table+'"></div>'
     +'<div class="field"><p class="fieldlabel">攜伴人數（不含本人）</p><input class="tin" id="x-plus" inputmode="numeric" value="'+(Number(p.plus)||0)+'"></div>'
     +'<div class="field"><p class="fieldlabel">喜餅款式</p><div class="seg">'
-    +'<button id="x-k1" '+(k==="1"?'data-on="1"':'')+' onclick="setFixK(\'1\')">款1<br>女方長輩</button>'
-    +'<button id="x-k2" '+(k==="2"?'data-on="1"':'')+' onclick="setFixK(\'2\')">款2<br>女方</button>'
-    +'<button id="x-k3" '+(k==="3"?'data-on="1"':'')+' onclick="setFixK(\'3\')">款3<br>男方</button>'
+    +'<button id="x-k1" '+(k==="1"?'data-on="1"':'')+' onclick="setFixK(\'1\')">卡柏蒂<br>女方長輩</button>'
+    +'<button id="x-k2" '+(k==="2"?'data-on="1"':'')+' onclick="setFixK(\'2\')">赫拉小<br>男方長輩</button>'
+    +'<button id="x-k3" '+(k==="3"?'data-on="1"':'')+' onclick="setFixK(\'3\')">赫拉大<br>男方・女方</button>'
     +'</div></div>'
     +'<div class="field"><p class="fieldlabel">收禮方式</p><div class="seg">'
     +'<button id="x-fee" '+(p.noFee?'':'data-on="1"')+' onclick="setFixFee(false)">要收紅包</button>'
@@ -626,7 +663,8 @@ function setFixFee(v){window._fixNoFee=v
   if(v){$("#x-nofee").dataset.on="1";$("#x-fee").removeAttribute("data-on")}
   else{$("#x-fee").dataset.on="1";$("#x-nofee").removeAttribute("data-on")}}
 function setFixK(k){
-  window._fixElder=(k==="1");window._fixSide=(k==="3")?"男":"女"
+  window._fixElder=(k==="1"||k==="2")
+  window._fixSide=(k==="1")?"女":(k==="2")?"男":(window._fixSide||"女")
   ;["1","2","3"].forEach(function(n){
     var el=$("#x-k"+n)
     if(n===k)el.dataset.on="1";else el.removeAttribute("data-on")})
@@ -788,7 +826,7 @@ function setWiFee(v){wiNoFee=v
   if(v){$("#w-nofee").dataset.on="1";$("#w-fee").removeAttribute("data-on")}
   else{$("#w-fee").dataset.on="1";$("#w-nofee").removeAttribute("data-on")}}
 function walkinForm(target){
-  wiK = role==="gM" ? "3" : "2";wiNoFee=(target==="box")
+  wiK = "3";wiNoFee=(target==="box")
   $("#sheetIn").innerHTML='<div class="shead"><h2>新增賓客</h2>'
     +'<div class="rmeta" style="margin-top:6px"><span>名單外／未預先登記</span></div></div>'
     +'<div class="sbody"><div class="field"><p class="fieldlabel">姓名</p>'
@@ -796,9 +834,9 @@ function walkinForm(target){
     +'<div class="field"><p class="fieldlabel">桌次</p><input class="tin" id="w-table" inputmode="numeric"></div>'
     +'<div class="field"><p class="fieldlabel">攜伴人數（不含本人，一個人填 0）</p><input class="tin" id="w-plus" inputmode="numeric" value="0"></div>'
     +'<div class="field"><p class="fieldlabel">喜餅款式</p><div class="seg">'
-    +'<button id="w-k1" '+(wiK==="1"?'data-on="1"':'')+' onclick="setWiK(\'1\')">款1<br>女方長輩</button>'
-    +'<button id="w-k2" '+(wiK==="2"?'data-on="1"':'')+' onclick="setWiK(\'2\')">款2<br>女方</button>'
-    +'<button id="w-k3" '+(wiK==="3"?'data-on="1"':'')+' onclick="setWiK(\'3\')">款3<br>男方</button>'
+    +'<button id="w-k1" '+(wiK==="1"?'data-on="1"':'')+' onclick="setWiK(\'1\')">卡柏蒂<br>女方長輩</button>'
+    +'<button id="w-k2" '+(wiK==="2"?'data-on="1"':'')+' onclick="setWiK(\'2\')">赫拉小<br>男方長輩</button>'
+    +'<button id="w-k3" '+(wiK==="3"?'data-on="1"':'')+' onclick="setWiK(\'3\')">赫拉大<br>男方・女方</button>'
     +'</div></div>'
     +'<div class="field"><p class="fieldlabel">收禮方式</p><div class="seg">'
     +'<button id="w-fee" data-on="1" onclick="setWiFee(false)">要收紅包</button>'
@@ -824,13 +862,24 @@ async function saveWalkin(target){
 }
 
 /* ═══════ STATION 2 發餅台 ═══════ */
+function offlineBanner(){
+  var pend=outbox.length
+  if(failStreak===0&&!pend&&!fromCache)return ""
+  if(pend||failStreak>0){
+    return '<div class="callout wait" style="margin-bottom:14px">'
+      +'<b>目前離線作業中</b>　資料來自本機'+(cacheTs?'（最後更新 '+cacheAge()+'）':'')+'。'
+      +(pend?'已暫存 <b>'+pend+'</b> 筆待回傳，':'')
+      +'照常發餅即可，連上線會自動補送。<b>不要重複點同一個人。</b></div>'
+  }
+  return ""
+}
 function renderBox(w){
   var q=rows.filter(function(p){return p.stage===1})
   var ids=new Set(q.map(function(p){return p.id})),fresh=false
   ids.forEach(function(i){if(!prevIds.has(i))fresh=true})
   if(prevIds.size&&fresh)ping()
   var cur=q[0]
-  var html=""
+  var html=offlineBanner()
   if(cur){
     var k=kOf(cur)
     html+='<div class="now k'+k+'"><div class="strip"></div><div class="body">'
@@ -848,7 +897,12 @@ function renderBox(w){
   }else{
     html+='<div class="idle"><span class="mk">✦</span>目前沒有待發的喜餅<br>收禮台完成登記後會自動出現在這裡</div>'
   }
-  html+='<p class="sect">全部款式進度</p><div class="cats">'
+  html+='<p class="sect">找不到人？直接搜尋姓名</p>'
+    +'<div class="searchwrap"><input id="bq" placeholder="輸入姓名或桌次" autocomplete="off" '
+    +'autocorrect="off" spellcheck="false" value="'+esc(boxQ)+'">'
+    +'<button class="clr'+(boxQ?" on":"")+'" id="bclr">✕</button></div>'
+    +'<div id="bres"></div>'
+    +'<p class="sect" style="margin-top:22px">全部款式進度</p><div class="cats">'
   ;["1","2","3"].forEach(function(k){
     var all=rows.filter(function(p){return kOf(p)===k})
     var out=all.filter(function(p){return p.stage>=2}).length
@@ -862,7 +916,40 @@ function renderBox(w){
   html+='</div><div class="util" style="margin-top:14px">'
     +'<button onclick="walkinForm(\'box\')">未包禮金者直接領餅</button></div>'
   w.innerHTML=html
+  var bq=$("#bq")
+  if(bq){
+    bq.addEventListener("compositionstart",function(){composing=true})
+    bq.addEventListener("compositionend",function(){composing=false;boxQ=bq.value;paintBoxSearch()})
+    bq.addEventListener("input",function(){if(!composing){boxQ=bq.value;paintBoxSearch()}})
+    $("#bclr").onclick=function(){bq.value="";boxQ="";paintBoxSearch();bq.focus()}
+  }
+  paintBoxSearch()
   prevIds=ids
+}
+var boxQ=""
+function paintBoxSearch(){
+  var box=$("#bres");if(!box)return
+  var q=boxQ.trim()
+  var cl=$("#bclr");if(cl)cl.classList.toggle("on",!!q)
+  if(!q){box.innerHTML="";return}
+  var list=rows.filter(function(p){
+    return p.name.indexOf(q)>=0||String(p.table)===q
+      ||(p.envNo&&p.envNo.toLowerCase().indexOf(q.toLowerCase())>=0)})
+  if(!list.length){
+    box.innerHTML='<div class="empty">名單上沒有「'+esc(q)+'」<br>'
+      +'請用下方「未包禮金者直接領餅」新增</div>';return
+  }
+  box.innerHTML=list.slice(0,40).map(function(p){
+    var k=kOf(p),done=p.stage>=2
+    return '<div class="row '+(done?"done":"")+'" onclick="'
+      +(done?'openFix('+p.id+')':'gaveBox('+p.id+')')+'">'
+      +'<div class="bar k'+k+'"></div><div class="rowmain">'
+      +'<div class="rname">'+esc(p.name)+'</div>'
+      +'<div class="rmeta"><span class="chip k'+k+'">'+esc(kName(k))+'</span>'
+      +'<span>第 '+p.table+' 桌</span>'
+      +(heads(p)>1?'<span>共 '+heads(p)+' 位</span>':'')
+      +(done?'<span class="chip ok">已領取</span>':'')+'</div></div>'
+      +'<div class="rowgo'+(done?"":" edit")+'">'+(done?"✎":"發出<br>喜餅")+'</div></div>'}).join("")
 }
 function openBoxRoster(k){
   var all=rows.filter(function(p){return kOf(p)===k})
@@ -881,9 +968,12 @@ function openBoxRoster(k){
   openSheet()
 }
 async function gaveBox(id){
-  var p=byId(id)
+  var p=byId(id);if(!p)return
+  if(p.stage>=2){toast(p.name+" 已經領過了");return}
+  var nm=p.name
+  boxQ=""
   await send({action:"stage",id:id,stage:2},function(){p.stage=2})
-  toast("已發出，接待台會收到通知")
+  toast(outbox.length?("已記錄 "+nm+"（離線暫存）"):("已發出　"+nm))
 }
 
 /* ═══════ STATION 3 接待引導 ═══════ */
@@ -892,7 +982,7 @@ function renderUsher(w){
   var ids=new Set(q.map(function(p){return p.id})),fresh=false
   ids.forEach(function(i){if(!prevIds.has(i))fresh=true})
   if(prevIds.size&&fresh)ping()
-  var cur=q[0],html=""
+  var cur=q[0],html=offlineBanner()
   if(cur){
     var same=headSum(rows.filter(function(x){return x.table===cur.table&&x.stage===3}))
     html+='<div class="now plain"><div class="strip"></div><div class="body">'
@@ -1097,17 +1187,33 @@ $("#code-in").addEventListener("keydown",function(e){if(e.key==="Enter")tryCode(
   try{saved=localStorage.getItem("wedCode");savedRole=localStorage.getItem("wedRole")}catch(e){}
   if(!saved)return
   code=saved
-  $("#code-err").textContent="連線中…"
+  loadOutbox()
+  // 先用本機快取把畫面打開，即使完全連不上也能作業
+  if(loadCache()){
+    $("#gate").classList.remove("on")
+    if(savedRole&&perms.roles.indexOf(savedRole)>=0)setRole(savedRole)
+    else showPicker()
+    setNet("off")
+    startPolling()
+  }else{
+    $("#code-err").textContent="連線中…"
+  }
   apiGetRetry(-1,4)
     .then(function(d){
-      if(!d||!d.ok){code="";$("#code-err").textContent=(d&&d.error)||"";return}
-      applyPayload(d);failStreak=0
-      $("#gate").classList.remove("on")
-      if(savedRole&&perms.roles.indexOf(savedRole)>=0)setRole(savedRole)
-      else showPicker()
+      if(!d||!d.ok){
+        if(!fromCache){code="";$("#code-err").textContent=(d&&d.error)||""}
+        return
+      }
+      applyPayload(d);failStreak=0;setNet("ok")
+      if($("#gate").classList.contains("on")){
+        $("#gate").classList.remove("on")
+        if(savedRole&&perms.roles.indexOf(savedRole)>=0)setRole(savedRole)
+        else showPicker()
+      }else{ render() }
       startPolling()
     })
     .catch(function(){
+      if(fromCache){ setNet("off"); return }   // 已用快取開起來，繼續離線作業
       $("#code-err").textContent="伺服器忙線中，請按下方進入重試"
       $("#code-in").value=saved
     })
