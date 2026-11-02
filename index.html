@@ -1113,6 +1113,7 @@ function renderDash(w){
   var arr=headSum(arrRows), bags=arrRows.filter(function(p){return !p.noFee}).length
   var noFeeAll=rows.filter(function(p){return p.noFee})
   var seated=headSum(rows.filter(function(p){return p.stage===3}))
+  var seatedRows=rows.filter(function(p){return p.stage===3}).length
   var pct=Math.round(arr/totH*100),target=Math.round(totH*.7),need=Math.max(0,target-arr)
   var tables=[];rows.forEach(function(p){if(tables.indexOf(p.table)<0)tables.push(p.table)})
   tables.sort(function(a,b){return a-b})
@@ -1122,6 +1123,35 @@ function renderDash(w){
   var maxF=0,maxM=0
   rows.forEach(function(p){if(p.envNo){var n=parseInt(p.envNo.substring(1),10)
     if(!isNaN(n)){if(p.envNo.charAt(0)==="F"&&n>maxF)maxF=n;if(p.envNo.charAt(0)==="M"&&n>maxM)maxM=n}}})
+
+  /* 桌次超額提示 */
+  var over=overTables(), overCard=""
+  if(over.length){
+    overCard='<div class="card" style="border-color:#E8C0A4;background:var(--warnbg)">'
+      +'<h3 style="color:var(--warn)">桌次超額<span class="notebadge">'+over.length+'</span></h3>'
+      +over.map(function(t){
+        var h=tableHeads(t)
+        return '<button class="nitem" onclick="openTableRoster('+t+')"><span class="nb">'
+          +'<b>第 '+t+' 桌</b><i>含攜伴共 '+h+' 位，超過上限 '+(h-TABLE_CAP)+' 位</i>'
+          +'<em>'+tableRows(t).length+' 組賓客</em></span><span class="ngo">›</span></button>'}).join("")
+      +'<p class="note" style="color:var(--warn)">每桌上限 '+TABLE_CAP+' 位。點進去可查看該桌名單。</p></div>'
+  }
+
+  /* 工作人員備註 */
+  var noted=rows.filter(function(p){return p.note&&p.note.trim()})
+  var noteCard=""
+  if(noted.length){
+    noteCard='<div class="card" style="border-color:#E8C0A4;background:var(--warnbg)">'
+      +'<h3 style="color:var(--warn)">工作人員備註<span class="notebadge">'+noted.length+'</span></h3>'
+      +noted.map(function(p){
+        return '<button class="nitem" onclick="openNote('+p.id+')"><span class="nb"><b>'+esc(p.name)+'</b>'
+          +'<i>'+esc(p.note)+'</i>'
+          +'<em>第 '+p.table+' 桌　'+esc(p.envNo||"未收禮")+'　'+STAGE_NAMES[p.stage]+'</em></span>'
+          +'<span class="ngo">›</span></button>'}).join("")
+      +'<p class="note" style="color:var(--warn)">點任一則可查看完整資料並標記處理完畢。</p></div>'
+  }
+
+  /* 禮金（僅總召與新人看得到） */
   var money=""
   if(perms.seeTotals){
     var sum=rows.filter(function(p){return p.amount!=null}).reduce(function(a,p){return a+p.amount},0)
@@ -1135,6 +1165,8 @@ function renderDash(w){
       +(noAmt?'<div class="line" style="color:var(--warn)"><span>尚未登錄金額</span><span><b>'+noAmt+'</b> 筆</span></div>':'')
       +'<p class="note">散場前三個數字要一致：登錄筆數、實際紅包袋數、編號最大值。</p></div>'
   }
+
+  /* 喜餅：依族群 + 實際盒數 */
   var prodTot={},prodOut={}
   PRODUCTS.forEach(function(x){prodTot[x]=0;prodOut[x]=0})
   rows.forEach(function(p){
@@ -1158,11 +1190,24 @@ function renderDash(w){
       return '<div class="line"><span>'+esc(x)+'</span><span><b>'+prodOut[x]+'</b> / '+prodTot[x]+' 盒</span></div>'}).join("")
     +'<p class="note">這裡是把雙盒那一組拆開後的實際盒數，訂餅就看這三個分母，建議再加一成備品。</p>'
     +'</div>'
+
+  w.innerHTML=overCard+noteCard
+    +'<div class="kpis">'
+    +'<div class="kpi"><div class="k">已到場人數</div><div class="v">'+arr
+    +'<span style="font-size:15px;color:var(--dim)"> / '+totH+'</span></div>'
+    +'<div class="s">'+pct+'%　'+bags+' 組</div>'
+    +'<div class="track"><i style="width:'+pct+'%"></i></div></div>'
+    +'<div class="kpi"><div class="k">已入席桌數</div><div class="v">'+seatedT
+    +'<span style="font-size:15px;color:var(--dim)"> / '+tables.length+'</span></div>'
+    +'<div class="s">已就座 '+seated+' 人</div></div></div>'
+    +'<div class="callout '+(need?"wait":"go")+'">'
+    +(need?'距離 70% 開席目標（約 '+target+' 人）還差 <b>'+need+'</b> 人。'
+        :'已達 70% 開席目標，可請司儀準備開席。')+'</div>'
     +'<div class="card"><h3>三關流程狀況</h3><div class="flow">'
     +'<div class="fl"><div class="n">'+bags+'</div><div class="l">① 已收禮</div></div>'
     +'<div class="fl" data-hot="'+(w1>3?1:0)+'"><div class="n">'+w1+'</div><div class="l">待發餅</div></div>'
     +'<div class="fl" data-hot="'+(w2>3?1:0)+'"><div class="n">'+w2+'</div><div class="l">待入席</div></div>'
-    +'<div class="fl"><div class="n">'+rows.filter(function(p){return p.stage===3}).length+'</div><div class="l">③ 已就座</div></div></div>'
+    +'<div class="fl"><div class="n">'+seatedRows+'</div><div class="l">③ 已就座</div></div></div>'
     +'<p class="note">中間兩格持續大於 3，代表那一關塞住了，需要調人手。</p></div>'
     +boxCard+money
     +'<div class="card"><h3>桌位</h3><div class="tgrid">'
