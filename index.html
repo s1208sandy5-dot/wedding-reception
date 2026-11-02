@@ -387,19 +387,23 @@ function tryCode(){
   var v=$("#code-in").value.trim().toUpperCase()
   if(!v){$("#code-err").textContent="請輸入通行碼";return}
   $("#code-err").textContent="驗證中…";code=v
-  fetch(API+"?code="+encodeURIComponent(code)+"&since=-1")
-    .then(function(r){return r.json()})
+  apiGetRetry(-1,3)
     .then(function(d){
-      if(!d.ok){$("#code-err").textContent=d.error||"通行碼不正確";code="";return}
+      if(!d||!d.ok){$("#code-err").textContent=(d&&d.error)||"通行碼不正確";code="";return}
       applyPayload(d)
       try{localStorage.setItem("wedCode",code)}catch(e){}
+      failStreak=0
       $("#gate").classList.remove("on");showPicker();startPolling()
     })
-    .catch(function(){$("#code-err").textContent="連不上伺服器，請確認網路"})
+    .catch(function(){
+      $("#code-err").textContent="伺服器忙線中，請等五秒再按一次進入"
+      code=""
+    })
 }
 function logout(){
+  stopPolling()
   try{localStorage.removeItem("wedCode");localStorage.removeItem("wedRole")}catch(e){}
-  code="";role=null;rows=[];rev=-1
+  code="";role=null;rows=[];rev=-1;failStreak=0;netBusy=false
   $("#top").style.display="none";$("#wrap").innerHTML=""
   $("#pick").classList.remove("on");$("#code-in").value="";$("#code-err").textContent=""
   $("#gate").classList.add("on")
@@ -422,48 +426,122 @@ function setRole(r){
 }
 
 /* ---------- 連線 ---------- */
-async function pull(){
-  if(!code)return false
+/* ---------- 連線核心（防重疊、逾時、退避） ---------- */
+var POLL_BASE=5000, pollTimer=null, pollRunning=false, netBusy=false, failStreak=0
+var jitter=Math.floor(Math.random()*1500)
+
+function withTimeout(ms){
+  var c=null
+  try{ c=new AbortController() }catch(e){}
+  var t=setTimeout(function(){ if(c){try{c.abort()}catch(e){}} },ms)
+  return {signal:c?c.signal:undefined, done:function(){clearTimeout(t)}}
+}
+async function apiGet(since,ms){
+  var g=withTimeout(ms||12000)
   try{
-    var r=await fetch(API+"?code="+encodeURIComponent(code)+"&since="+rev)
-    var d=await r.json()
-    if(!d.ok){if(d.auth===false){logout();toast("通行碼已失效")}return false}
-    setNet("ok")
+    var r=await fetch(API+"?code="+encodeURIComponent(code)+"&since="+since,
+      {signal:g.signal,cache:"no-store"})
+    return await r.json()
+  }finally{ g.done() }
+}
+async function apiPost(body,ms){
+  var g=withTimeout(ms||20000)
+  try{
+    var r=await fetch(API,{method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify(body),signal:g.signal})
+    return await r.json()
+  }finally{ g.done() }
+}
+/* 登入用：失敗自動重試，避開四台同時擠進來的瞬間 */
+async function apiGetRetry(since,tries){
+  tries=tries||3
+  var last=null
+  for(var i=0;i<tries;i++){
+    try{ return await apiGet(since,12000+i*5000) }
+    catch(e){
+      last=e
+      if(i<tries-1)await new Promise(function(r){
+        setTimeout(r,1500*(i+1)+Math.floor(Math.random()*1200))})
+    }
+  }
+  throw last
+}
+
+async function pull(){
+  if(!code||netBusy)return false
+  netBusy=true
+  try{
+    var d=await apiGet(rev)
+    if(!d||!d.ok){
+      if(d&&d.auth===false){logout();toast("通行碼已失效")}
+      failStreak++;setNet("off");return false
+    }
+    failStreak=0;setNet("ok")
     if(d.same)return false
     applyPayload(d);return true
-  }catch(e){setNet("off");return false}
+  }catch(e){failStreak++;setNet("off");return false}
+  finally{netBusy=false}
 }
 async function send(action,optimistic){
   action.code=code
   if(optimistic)optimistic()
   render();setNet("send")
+  netBusy=true
+  var failed=false
   try{
-    var r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify(action)})
-    var d=await r.json()
-    if(!d.ok){toast(d.error||"寫入失敗");setNet("off");await pull();render();return}
-    applyPayload(d);setNet("ok");render();return d
-  }catch(e){outbox.push(action);setNet("off");toast("網路不穩，已暫存，稍後自動補送")}
+    var d=await apiPost(action)
+    if(!d||!d.ok){failed=true;toast((d&&d.error)||"寫入失敗");setNet("off");return}
+    applyPayload(d);failStreak=0;setNet("ok");render();return d
+  }catch(e){
+    outbox.push(action);failStreak++;setNet("off")
+    toast("網路不穩，已暫存，稍後自動補送")
+  }finally{
+    netBusy=false
+    if(failed){await pull();render()}
+  }
 }
 async function flushOutbox(){
   if(!outbox.length)return
   var pending=outbox.slice();outbox=[]
-  for(var i=0;i<pending.length;i++){
-    try{
-      var r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
-        body:JSON.stringify(pending[i])})
-      var d=await r.json();if(d.ok)applyPayload(d)
-    }catch(e){outbox=outbox.concat(pending.slice(i));break}
-  }
+  netBusy=true
+  try{
+    for(var i=0;i<pending.length;i++){
+      try{
+        var d=await apiPost(pending[i])
+        if(d&&d.ok)applyPayload(d)
+      }catch(e){outbox=outbox.concat(pending.slice(i));break}
+    }
+  }finally{ netBusy=false }
   if(!outbox.length){setNet("ok");toast("暫存資料已補送完成");render()}
 }
 function startPolling(){
-  setInterval(async function(){
-    if(sheetOpen)return
-    await flushOutbox()
-    if(await pull())render()
-  },3000)
+  if(pollRunning)return          // 防止登出再登入時啟動第二個迴圈
+  pollRunning=true
+  schedulePoll(POLL_BASE+jitter) // 每台裝置錯開，不會四台同時打
 }
+function stopPolling(){
+  pollRunning=false
+  if(pollTimer){clearTimeout(pollTimer);pollTimer=null}
+}
+function schedulePoll(ms){
+  if(pollTimer)clearTimeout(pollTimer)
+  pollTimer=setTimeout(pollTick,ms)
+}
+async function pollTick(){
+  if(!code){stopPolling();return}
+  // 正在編輯、上一次還沒回來、或畫面在背景 → 這一輪跳過，不堆疊請求
+  if(sheetOpen||netBusy||document.hidden){schedulePoll(2500);return}
+  await flushOutbox()
+  if(await pull())render()
+  var wait = failStreak===0
+    ? POLL_BASE
+    : Math.min(30000, Math.round(POLL_BASE*Math.pow(1.7,failStreak)))
+  schedulePoll(wait+Math.floor(Math.random()*900))
+}
+document.addEventListener("visibilitychange",function(){
+  if(!document.hidden&&pollRunning){failStreak=0;schedulePoll(400)}
+})
 
 function render(){
   if(!role)return
@@ -1019,16 +1097,20 @@ $("#code-in").addEventListener("keydown",function(e){if(e.key==="Enter")tryCode(
   try{saved=localStorage.getItem("wedCode");savedRole=localStorage.getItem("wedRole")}catch(e){}
   if(!saved)return
   code=saved
-  fetch(API+"?code="+encodeURIComponent(code)+"&since=-1")
-    .then(function(r){return r.json()})
+  $("#code-err").textContent="連線中…"
+  apiGetRetry(-1,4)
     .then(function(d){
-      if(!d.ok){code="";return}
-      applyPayload(d)
+      if(!d||!d.ok){code="";$("#code-err").textContent=(d&&d.error)||"";return}
+      applyPayload(d);failStreak=0
       $("#gate").classList.remove("on")
       if(savedRole&&perms.roles.indexOf(savedRole)>=0)setRole(savedRole)
       else showPicker()
       startPolling()
-    }).catch(function(){})
+    })
+    .catch(function(){
+      $("#code-err").textContent="伺服器忙線中，請按下方進入重試"
+      $("#code-in").value=saved
+    })
 })()
 </script>
 </body>
