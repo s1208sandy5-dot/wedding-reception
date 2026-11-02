@@ -297,6 +297,25 @@ input{font-family:inherit;font-size:inherit}
 .nitem .ngo{flex:0 0 auto;color:var(--warn);font-size:22px;align-self:center;padding-left:4px}
 .notebox{background:var(--surface);border:1px solid var(--line2);border-radius:14px;
   padding:16px;font-size:19px;line-height:1.7;min-height:78px;white-space:pre-wrap;word-break:break-word}
+
+/* ── 二次確認 ── */
+.confirmWrap{position:fixed;inset:0;z-index:120;background:rgba(18,53,64,.55);
+  display:none;align-items:center;justify-content:center;padding:22px}
+.confirmWrap.on{display:flex}
+.confirmBox{background:var(--bg);border-radius:20px;width:100%;max-width:420px;
+  box-shadow:0 18px 50px rgba(16,53,60,.3);overflow:hidden}
+.cbody{padding:24px 22px 22px}
+.ctitle{font-family:var(--serif);font-size:23px;font-weight:600;margin:0 0 6px;text-align:center}
+.cwho{font-size:16px;color:var(--ink2);margin:0 0 18px;text-align:center}
+.cdiff{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:16px 14px;margin-bottom:16px}
+.cdiff .was{font-size:17px;color:var(--muted);text-decoration:line-through}
+.cdiff .arrow{font-size:19px;color:var(--aqua);font-weight:700}
+.cdiff .now{font-family:var(--serif);font-size:19px;font-weight:600;color:var(--ink);
+  white-space:pre-line;text-align:left;line-height:1.8}
+.cnote{font-size:14px;color:var(--warn);line-height:1.7;margin:0 0 16px;
+  background:var(--warnbg);border:1px solid #EDCDB4;border-radius:12px;padding:11px 13px}
 </style>
 </head>
 <body>
@@ -332,6 +351,7 @@ input{font-family:inherit;font-size:inherit}
 
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet"><div class="grab"></div><div id="sheetIn"></div></div>
+<div class="confirmWrap" id="confirmWrap"><div class="confirmBox" id="confirmIn"></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -729,12 +749,25 @@ function openFix(id,back){
     +'</div>'
   openSheet()
 }
-async function saveNote(id){
+function saveNote(id){
+  var p=byId(id);if(!p)return
   var v=$("#x-note").value.trim()
-  var back=window._fixBack
+  var had=(p.note||"").trim()
+  if(v===had){toast("備註沒有變更");return}
+  askConfirm({
+    title:v?"確認送出備註？":"確認清除備註？",
+    who:p.name+"　第 "+p.table+" 桌",
+    from:had||undefined,
+    to:v||"（清除）",
+    note:v?"送出後總召與新人會立刻收到通知。":"",
+    yes:v?"送出備註":"確認清除",
+    onYes:function(){doSaveNote(id,v,window._fixBack)}
+  })
+}
+async function doSaveNote(id,v,back){
   closeSheet()
   await send({action:"note",id:id,note:v},function(){var p=byId(id);if(p)p.note=v})
-  toast(v?"備註已儲存":"備註已清除")
+  toast(v?"備註已送出":"備註已清除")
   if(back)setTimeout(back,220)
 }
 
@@ -773,21 +806,83 @@ function setFixK(k){
     var el=$("#x-k"+n)
     if(n===k)el.dataset.on="1";else el.removeAttribute("data-on")})
 }
-async function saveFix(id){
+function saveFix(id){
+  var p=byId(id);if(!p)return
   var nm=$("#x-name").value.trim()
   var tb=Number($("#x-table").value.trim())||0
   var pt=Number($("#x-plus").value.trim())||0
-  var el=window._fixElder,sd=window._fixSide
-  closeSheet()
   var nf=!!window._fixNoFee, bs=window._fixBoxSet||""
+  var changes=[]
+  if(nm&&nm!==p.name)changes.push("姓名　"+p.name+" → "+nm)
+  if(tb!==p.table)changes.push("桌次　第 "+p.table+" 桌 → 第 "+tb+" 桌")
+  if(pt!==(Number(p.plus)||0))changes.push("攜伴　"+(Number(p.plus)||0)+" → "+pt)
+  var oldK=kOf(p), newK=normK(bs)||oldK
+  if(newK!==oldK)changes.push("喜餅　"+kName(oldK)+" → "+kName(newK))
+  if(nf!==!!p.noFee)changes.push("收禮　"+(p.noFee?"免收禮":"要收紅包")+" → "+(nf?"免收禮":"要收紅包"))
+  if(!changes.length){toast("沒有任何變更");return}
+  askConfirm({
+    title:"確認修改這 "+changes.length+" 項？",
+    who:p.name,
+    to:changes.join("\n"),
+    note:(nf&&!p.noFee)?"改為免收禮會清除紅包編號與金額。":"",
+    yes:"確認修改",
+    onYes:function(){doSaveFix(id,nm,tb,pt,nf,bs)}
+  })
+}
+async function doSaveFix(id,nm,tb,pt,nf,bs){
+  var cur=byId(id)
+  var k=normK(bs)
+  var el=k?(k==="1"||k==="2"):(cur?cur.elder:false)
+  var sd=k?((k==="3")?"男":"女"):(cur?cur.side:"女")
+  closeSheet()
   await send({action:"fix",id:id,name:nm,table:tb,plus:pt,elder:el,side:sd,noFee:nf,boxSet:bs},function(){
     var p=byId(id);if(p){p.name=nm;p.table=tb;p.plus=pt;p.elder=el;p.side=sd;p.noFee=nf;p.boxSet=bs
       if(nf){p.amount=null;p.envNo=p.stage>0?"—":""}}})
   toast(tb>0&&tableHeads(tb)>TABLE_CAP
-    ? "已更正，但第 "+tb+" 桌已達 "+tableHeads(tb)+" 位，超過上限 "+TABLE_CAP
-    : "已更正")
+    ? "已修改，但第 "+tb+" 桌已達 "+tableHeads(tb)+" 位，超過上限 "+TABLE_CAP
+    : "已修改")
 }
-async function setStage(id,s){
+/* ───── 二次確認對話框 ───── */
+var _confirmFn=null
+function askConfirm(opt){
+  _confirmFn=opt.onYes
+  $("#confirmIn").innerHTML='<div class="cbody">'
+    +'<p class="ctitle">'+esc(opt.title||"確認變更")+'</p>'
+    +(opt.who?'<p class="cwho">'+esc(opt.who)+'</p>':'')
+    +(opt.from!==undefined
+      ? '<div class="cdiff"><span class="was">'+esc(opt.from)+'</span>'
+        +'<span class="arrow">→</span><span class="now">'+esc(opt.to)+'</span></div>'
+      : (opt.to?'<div class="cdiff"><span class="now">'+esc(opt.to)+'</span></div>':''))
+    +(opt.note?'<p class="cnote">'+esc(opt.note)+'</p>':'')
+    +'<button class="big go" onclick="confirmYes()">'+esc(opt.yes||"確認變更")+'</button>'
+    +'<button class="big sec" onclick="confirmNo()">取消，不要變更</button>'
+    +'</div>'
+  $("#confirmWrap").classList.add("on")
+}
+function confirmYes(){
+  var fn=_confirmFn;_confirmFn=null
+  $("#confirmWrap").classList.remove("on")
+  if(fn)fn()
+}
+function confirmNo(){
+  _confirmFn=null
+  $("#confirmWrap").classList.remove("on")
+  toast("已取消，資料沒有變更")
+}
+
+function setStage(id,s){
+  var p=byId(id);if(!p)return
+  if(p.stage===s){toast("目前已經是「"+STAGE_NAMES[s]+"」，沒有變更");return}
+  askConfirm({
+    title:"要更改進度嗎？",
+    who:p.name+"　第 "+p.table+" 桌",
+    from:STAGE_NAMES[p.stage], to:STAGE_NAMES[s],
+    note:(s===0?"退回「未到」會一併清除紅包編號與金額，無法復原。":""),
+    yes:"確認改為「"+STAGE_NAMES[s]+"」",
+    onYes:function(){doSetStage(id,s)}
+  })
+}
+async function doSetStage(id,s){
   closeSheet()
   await send({action:"stage",id:id,stage:s},function(){
     var p=byId(id);if(p){p.stage=s;if(s===0){p.envNo="";p.amount=null}}})
@@ -906,12 +1001,26 @@ function openGift(id){
     +'</div>'
   openSheet()
 }
-async function doneGift(id){
-  var p=byId(id)
+function doneGift(id){
+  var p=byId(id);if(!p)return
   var no=$("#f-no").value.trim()
-  var pt=Number($("#f-plus").value.trim())||0
   var ae=$("#f-amt")
-  var amt=(ae&&ae.value.trim()!=="")?Number(ae.value.trim()):null
+  var amtTxt=(ae&&ae.value.trim()!=="")?Number(ae.value.trim()).toLocaleString():"未填"
+  var lines=p.noFee ? "免收禮・不收紅包" : (no+"　NT$ "+amtTxt)
+  askConfirm({
+    title:p.stage>0?"要儲存修改嗎？":"確認完成收禮",
+    who:p.name+"　第 "+p.table+" 桌",
+    from:(p.stage>0&&!p.noFee)?((p.envNo||"—")+"　NT$ "+(p.amount!=null?p.amount.toLocaleString():"未填")):undefined,
+    to:lines,
+    yes:p.stage>0?"確認儲存":"確認，送到發餅台",
+    onYes:function(){doDoneGift(id,no,ae?ae.value.trim():"",$("#f-plus")?$("#f-plus").value.trim():"")}
+  })
+}
+async function doDoneGift(id,no,amtRaw,plusRaw){
+  var p=byId(id)
+  var _unused=no
+  var pt=Number(plusRaw)||0
+  var amt=(amtRaw!=="")?Number(amtRaw):null
   closeSheet()
   if(p.stage>0){
     await send({action:"edit",id:id,envNo:no,amount:amt,plus:pt},function(){p.envNo=no;p.amount=amt;p.plus=pt})
@@ -1079,9 +1188,21 @@ function openBoxRoster(k){
     +'<button class="big sec" onclick="closeSheet()">關閉</button></div>'
   openSheet()
 }
-async function gaveBox(id){
+function gaveBox(id){
   var p=byId(id);if(!p)return
   if(p.stage>=2){toast(p.name+" 已經領過了");return}
+  var k=kOf(p)
+  askConfirm({
+    title:"確認發出喜餅",
+    who:p.name+"　第 "+p.table+" 桌",
+    to:kItems(k).join("　＋　"),
+    note:isDouble(k)?"這一位要拿 "+kItems(k).length+" 盒，請確認兩盒都已交給賓客。":"",
+    yes:"已交給賓客",
+    onYes:function(){doGaveBox(id)}
+  })
+}
+async function doGaveBox(id){
+  var p=byId(id);if(!p)return
   var nm=p.name
   boxQ=""
   await send({action:"stage",id:id,stage:2},function(){p.stage=2})
@@ -1150,8 +1271,19 @@ function openTableRoster(t){
     +'<button class="big sec" onclick="closeSheet()">關閉</button></div>'
   openSheet()
 }
-async function seat(id){
-  var p=byId(id)
+function seat(id){
+  var p=byId(id);if(!p)return
+  if(p.stage>=3){toast(p.name+" 已經入席了");return}
+  askConfirm({
+    title:"確認已入席",
+    who:p.name+(heads(p)>1?"　共 "+heads(p)+" 位":""),
+    to:"第 "+p.table+" 桌",
+    yes:"已帶到座位",
+    onYes:function(){doSeat(id)}
+  })
+}
+async function doSeat(id){
+  var p=byId(id);if(!p)return
   await send({action:"stage",id:id,stage:3},function(){p.stage=3})
   toast("已入席")
 }
@@ -1300,7 +1432,18 @@ function openNote(id){
     +'</div>'
   openSheet()
 }
-async function clearNote(id){
+function clearNote(id){
+  var p=byId(id);if(!p)return
+  askConfirm({
+    title:"確認這則備註已處理完畢？",
+    who:p.name+"　第 "+p.table+" 桌",
+    to:p.note||"",
+    note:"標記後這則備註會從所有人的畫面上消失。",
+    yes:"確認已處理",
+    onYes:function(){doClearNote(id)}
+  })
+}
+async function doClearNote(id){
   closeSheet()
   await send({action:"note",id:id,note:""},function(){var p=byId(id);if(p)p.note=""})
   toast("已標記處理完畢")
