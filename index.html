@@ -316,6 +316,30 @@ input{font-family:inherit;font-size:inherit}
   white-space:pre-line;text-align:left;line-height:1.8}
 .cnote{font-size:14px;color:var(--warn);line-height:1.7;margin:0 0 16px;
   background:var(--warnbg);border:1px solid #EDCDB4;border-radius:12px;padding:11px 13px}
+
+/* ── 廠商與待辦 ── */
+.hcard{display:flex;gap:12px;align-items:flex-start;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r);padding:15px 16px;margin-bottom:10px}
+.hmain{flex:1;min-width:0}
+.htitle{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:.03em}
+.hphone{display:inline-block;margin-top:6px;font-size:18px;font-weight:700;color:var(--aqua-d);
+  text-decoration:none;letter-spacing:.04em;background:var(--aqua-l);padding:6px 13px;border-radius:20px}
+.hempty{margin-top:6px;font-size:14px;color:var(--dim)}
+.hbody{margin-top:7px;font-size:15px;color:var(--ink2);line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.hacts{flex:0 0 auto;display:flex;flex-direction:column;gap:7px}
+.hacts button{padding:9px 13px;border-radius:11px;background:var(--surface2);
+  border:1px solid var(--line2);font-size:13.5px;font-weight:500;color:var(--ink2);white-space:nowrap}
+.hacts button.prim{background:var(--okbg);border-color:#BFE0D3;color:var(--ok);font-weight:700}
+.hcard.done{background:var(--surface2);border-style:dashed}
+.hcard.done .htitle{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1.5px}
+.hcard.done .hbody{color:var(--dim);text-decoration:line-through}
+.hcard.done .hacts button.prim{background:var(--surface);border-color:var(--line);
+  color:var(--muted);font-weight:500}
+@media (max-width:430px){
+  .hcard{flex-direction:column}
+  .hacts{flex-direction:row;width:100%}
+  .hacts button{flex:1}
+}
 </style>
 </head>
 <body>
@@ -365,10 +389,11 @@ var ROLES={gF:["收禮台・女方","STATION 1 · 女方","1","登記姓名、�
   gM:["收禮台・男方","STATION 1 · 男方","1","登記姓名、紅包編號與金額"],
   box:["發餅台","STATION 2 · 喜餅","2","依款式發送喜餅"],
   ush:["接待引導","STATION 3 · 入席","3","帶位入席、確認就座"],
-  dash:["總覽後台","OVERVIEW","◎","新人與總召使用"]}
+  dash:["總覽後台","OVERVIEW","◎","新人與總召使用"],
+  hub:["廠商與待辦","CONTACTS & TODO","✦","總召當天接洽與注意事項"]}
 var STAGE_NAMES=["未到","待發餅","待入席","已入席"]
 
-var rows=[],rev=-1,role=null,code=""
+var rows=[],hub=[],rev=-1,role=null,code=""
 var perms={roles:[],seeTotals:false,canEnterAmount:false}
 /* 共用狀態（這一行缺了會造成 ReferenceError） */
 var prevIds=new Set(), audioCtx=null, shellRole=null,
@@ -410,12 +435,14 @@ var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function byId(id){for(var i=0;i<rows.length;i++)if(rows[i].id===id)return rows[i];return null}
 var TABLE_CAP=10
+var TABLE_CAP_EX={1:12}            // 主桌 12 位
+function capOf(t){return TABLE_CAP_EX[t]||TABLE_CAP}
 function heads(p){return 1+(Number(p.plus)||0)}
 function tableRows(t){return rows.filter(function(p){return p.table===t})}
 function tableHeads(t){return headSum(tableRows(t))}
 function overTables(){
   var ts=[];rows.forEach(function(p){if(ts.indexOf(p.table)<0)ts.push(p.table)})
-  return ts.filter(function(t){return t>0&&tableHeads(t)>TABLE_CAP}).sort(function(a,b){return a-b})
+  return ts.filter(function(t){return t>0&&tableHeads(t)>capOf(t)}).sort(function(a,b){return a-b})
 }
 function headSum(list){return list.reduce(function(a,p){return a+heads(p)},0)}
 function plusTag(p){return (Number(p.plus)||0)>0 ? '＋'+p.plus : ''}
@@ -458,7 +485,7 @@ var CACHE_KEY="wedCache_v1", OUTBOX_KEY="wedOutbox_v1", cacheTs=0, fromCache=fal
 function saveCache(){
   try{
     localStorage.setItem(CACHE_KEY,JSON.stringify({
-      rows:rows,rev:rev,perms:perms,ts:Date.now()}))
+      rows:rows,hub:hub,rev:rev,perms:perms,ts:Date.now()}))
     cacheTs=Date.now()
   }catch(e){}
 }
@@ -466,7 +493,7 @@ function loadCache(){
   try{
     var c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null")
     if(!c||!c.rows||!c.rows.length)return false
-    rows=c.rows;rev=(c.rev===undefined?-1:c.rev)
+    rows=c.rows;hub=c.hub||[];rev=(c.rev===undefined?-1:c.rev)
     if(c.perms)perms=c.perms
     cacheTs=c.ts||0;fromCache=true
     return true
@@ -485,6 +512,7 @@ function cacheAge(){
 }
 function applyPayload(d){
   if(d.rows){rows=d.rows;fromCache=false}
+  if(d.hub)hub=d.hub
   if(d.rev!==undefined)rev=d.rev
   if(d.roles)perms={roles:d.roles,seeTotals:!!d.seeTotals,canEnterAmount:!!d.canEnterAmount}
   saveCache()
@@ -703,6 +731,7 @@ function render(){
   else{shellRole=null
     if(role==="box")renderBox(w)
     else if(role==="ush")renderUsher(w)
+    else if(role==="hub")renderHub(w)
     else renderDash(w)}
 }
 
@@ -830,8 +859,8 @@ async function doSaveFix(id,nm,tb,pt,nf,bs){
   await send({action:"fix",id:id,name:nm,table:tb,plus:pt,elder:el,side:sd,noFee:nf,boxSet:bs},function(){
     var p=byId(id);if(p){p.name=nm;p.table=tb;p.plus=pt;p.elder=el;p.side=sd;p.noFee=nf;p.boxSet=bs
       if(nf){p.amount=null;p.envNo=p.stage>0?"—":""}}})
-  toast(tb>0&&tableHeads(tb)>TABLE_CAP
-    ? "已修改，但第 "+tb+" 桌已達 "+tableHeads(tb)+" 位，超過上限 "+TABLE_CAP
+  toast(tb>0&&tableHeads(tb)>capOf(tb)
+    ? "已修改，但第 "+tb+" 桌已達 "+tableHeads(tb)+" 位，超過上限 "+capOf(tb)
     : "已修改")
 }
 /* ───── 二次確認對話框 ───── */
@@ -975,6 +1004,8 @@ function openGift(id){
     +'<div class="rmeta" style="margin-top:8px"><span class="chip k'+k+'">'+esc(kName(k))+'</span>'
     +'<span>第 '+p.table+' 桌</span><span>'+p.side+'方'+esc(p.rel)+'</span></div></div>'
     +'<div class="sbody">'
+    +((p.note&&p.note.trim())
+      ? '<div class="callout wait" style="margin-bottom:16px"><b>備註</b><br>'+esc(p.note)+'</div>' : '')
     +(p.noFee
       ? '<div class="callout go" style="margin-bottom:20px"><b>這位是免收禮賓客</b><br>'
         +'不需要收紅包，也不會佔用編號。直接按下方按鈕完成報到即可。</div>'
@@ -1062,7 +1093,7 @@ async function saveWalkin(target){
   var d=await send({action:"add",name:nm,side:wiK==="2"?"男":"女",elder:(wiK==="1"||wiK==="2"),
     rel:target==="box"?"未收禮":"臨時",table:t,plus:pt,noFee:wiNoFee,
     boxSet:(K_CANON[wiK]||""),stage:target==="box"?2:0})
-  if(t>0&&tableHeads(t)>TABLE_CAP)toast("注意：第 "+t+" 桌已達 "+tableHeads(t)+" 位，超過上限 "+TABLE_CAP)
+  if(t>0&&tableHeads(t)>capOf(t))toast("注意：第 "+t+" 桌已達 "+tableHeads(t)+" 位，超過上限 "+capOf(t))
   else if(target==="box")toast("已發餅並送往接待台")
   if(target!=="box"&&d&&d.newId)setTimeout(function(){openGift(d.newId)},200)
 }
@@ -1096,6 +1127,7 @@ function renderBox(w){
       +kItems(k).map(function(it,ix){
         return '<div class="item"><span class="num">'+(ix+1)+'</span><span>'+esc(it)+'</span></div>'}).join("")
       +'</div>'
+      +((cur.note&&cur.note.trim())?'<div class="dbl" style="margin-top:14px">'+esc(cur.note)+'</div>':'')
       +'<div class="nowmeta"><span class="badge k'+k+'">'+esc(kWho(k))+'</span>'
       +'<span class="badge n">第 '+cur.table+' 桌</span>'
       +(heads(cur)>1?'<span class="badge n">共 '+heads(cur)+' 位</span>':'')
@@ -1214,7 +1246,7 @@ function renderUsher(w){
       +'<div class="nowmeta"><span class="badge n">共 '+heads(cur)+' 位</span>'
       +'<span class="badge n">'+cur.side+'方'+esc(cur.rel)+'</span>'
       +'<span class="badge n">同桌已到 '+same+' / '+tableHeads(cur.table)+' 人</span>'
-      +(tableHeads(cur.table)>TABLE_CAP?'<span class="badge ov">此桌超過 '+TABLE_CAP+' 位</span>':'')+'</div>'
+      +(tableHeads(cur.table)>capOf(cur.table)?'<span class="badge ov">此桌超過 '+capOf(cur.table)+' 位</span>':'')+'</div>'
       +'<button class="act" onclick="seat('+cur.id+')">確認已入席</button>'
       +'<button class="act sec" onclick="openFix('+cur.id+')">賓客資料與備註</button>'
       +'</div>'
@@ -1230,10 +1262,10 @@ function renderUsher(w){
     +tables.map(function(t){
       var ps=rows.filter(function(p){return p.table===t})
       var a=headSum(ps.filter(function(p){return p.stage===3})),tt=headSum(ps)
-      var st=tt>TABLE_CAP?"over":(a===0?"none":a===tt?"full":"part")
+      var st=tt>capOf(t)?"over":(a===0?"none":a===tt?"full":"part")
       return '<button class="tcard" data-st="'+st+'" onclick="openTableRoster('+t+')">'
         +'<span class="n">'+t+'</span><span class="c">'+a+'/'+tt+'</span>'
-        +(tt>TABLE_CAP?'<span class="ov">超額</span>':'')+'</button>'}).join("")
+        +(tt>capOf(t)?'<span class="ov">超額</span>':'')+'</button>'}).join("")
     +'</div>'
   w.innerHTML=html
   prevIds=ids
@@ -1244,9 +1276,9 @@ function openTableRoster(t){
   $("#sheetIn").innerHTML='<div class="shead"><h2>第 '+t+' 桌</h2>'
     +'<div class="rmeta" style="margin-top:6px"><span>已入席 '+a+' / '+tt+' 人</span>'
     +'<span>'+ps.length+' 組賓客</span>'
-    +'<span'+(tt>TABLE_CAP?' style="color:var(--warn);font-weight:700"':'')+'>上限 '+TABLE_CAP+' 位</span></div></div>'
+    +'<span'+(tt>capOf(t)?' style="color:var(--warn);font-weight:700"':'')+'>上限 '+capOf(t)+' 位</span></div></div>'
     +'<div class="sbody">'
-    +(tt>TABLE_CAP?'<div class="callout wait">這一桌含攜伴共 '+tt+' 位，超過上限 '+(tt-TABLE_CAP)
+    +(tt>capOf(t)?'<div class="callout wait">這一桌含攜伴共 '+tt+' 位，超過上限 '+(tt-capOf(t))
       +' 位。請盡快與總召確認要調到哪一桌。</div>':'')
     +'<div class="rost">'
     +ps.map(function(p){
@@ -1275,6 +1307,122 @@ async function doSeat(id){
   var p=byId(id);if(!p)return
   await send({action:"stage",id:id,stage:3},function(){p.stage=3})
   toast("已入席")
+}
+
+
+/* ═══════ 廠商與待辦（總召專用） ═══════ */
+function renderHub(w){
+  var vend=hub.filter(function(h){return h.kind==="廠商"})
+  var todo=hub.filter(function(h){return h.kind!=="廠商"})
+  var openN=todo.filter(function(h){return !h.done}).length
+
+  // 喜餅即時數量，打電話給廠商時直接唸
+  var cnt={},undec=0
+  K_LIST.forEach(function(k){cnt[k]=0})
+  rows.forEach(function(p){
+    if(unspecified(p)){undec++;return}
+    cnt[kOf(p)]++
+  })
+  var cake='<div class="card"><h3>喜餅數量・即時</h3>'
+    +K_LIST.map(function(k){
+      return '<div class="line"><span><b style="color:var(--k'+k+')">●</b> '+esc(kName(k))+'</span>'
+        +'<span><b>'+cnt[k]+'</b> 盒</span></div>'}).join("")
+    +(undec?'<div class="line" style="color:var(--warn)"><span>尚未決定款式</span>'
+      +'<span><b>'+undec+'</b> 位</span></div>':'')
+    +'<div class="line"><span>賓客合計</span><span><b>'+rows.length+'</b> 組・'+headSum(rows)+' 位</span></div>'
+    +'<p class="note">這裡會跟著名單即時變動，訂餅或追加時直接看這三個數字。</p></div>'
+
+  w.innerHTML=cake
+    +'<p class="sect">當天要接洽的廠商</p>'
+    +(vend.length?vend.map(hubVendorCard).join(""):'<div class="empty">還沒有廠商資料</div>')
+    +'<div class="util" style="margin-top:4px"><button onclick="hubForm(\'廠商\')">＋ 新增廠商</button></div>'
+    +'<p class="sect" style="margin-top:26px">注意事項與待辦'
+      +(openN?'　<span class="notebadge">'+openN+' 項未處理</span>':'　<span class="chip ok">全部處理完畢</span>')+'</p>'
+    +(todo.length?todo.map(hubTodoCard).join(""):'<div class="empty">還沒有待辦事項</div>')
+    +'<div class="util" style="margin-top:4px"><button onclick="hubForm(\'待辦\')">＋ 新增待辦</button></div>'
+}
+function hubVendorCard(h){
+  return '<div class="hcard">'
+    +'<div class="hmain"><div class="htitle">'+esc(h.title)+'</div>'
+    +(h.phone?'<a class="hphone" href="tel:'+esc(h.phone.replace(/[^0-9+\-#*]/g,""))+'">'+esc(h.phone)+'</a>'
+             :'<div class="hempty">尚未填寫電話</div>')
+    +(h.body?'<div class="hbody">'+esc(h.body)+'</div>':'')+'</div>'
+    +'<div class="hacts"><button onclick="hubForm(\'廠商\','+h.id+')">編輯</button></div></div>'
+}
+function hubTodoCard(h){
+  return '<div class="hcard'+(h.done?" done":"")+'">'
+    +'<div class="hmain"><div class="htitle">'+esc(h.title)+'</div>'
+    +(h.body?'<div class="hbody">'+esc(h.body)+'</div>':'')
+    +(h.phone?'<a class="hphone" href="tel:'+esc(h.phone.replace(/[^0-9+\-#*]/g,""))+'">'+esc(h.phone)+'</a>':'')+'</div>'
+    +'<div class="hacts">'
+    +'<button class="prim" onclick="hubDone('+h.id+','+(h.done?"false":"true")+')">'
+      +(h.done?"回復未處理":"已處理")+'</button>'
+    +'<button onclick="hubForm(\'待辦\','+h.id+')">編輯</button></div></div>'
+}
+function hubForm(kind,id){
+  var h=id?hub.filter(function(x){return x.id===id})[0]:null
+  var isV=(kind==="廠商")
+  $("#sheetIn").innerHTML='<div class="shead"><h2>'+(h?"編輯":"新增")+(isV?"廠商":"待辦")+'</h2></div>'
+    +'<div class="sbody">'
+    +'<div class="field"><p class="fieldlabel">'+(isV?"廠商／單位名稱":"事項")+'</p>'
+    +'<input class="tin" id="h-title" value="'+esc(h?h.title:"")+'"></div>'
+    +'<div class="field"><p class="fieldlabel">電話'+(isV?"":"（選填）")+'</p>'
+    +'<input class="tin" id="h-phone" inputmode="tel" value="'+esc(h?h.phone:"")+'"></div>'
+    +'<div class="field"><p class="fieldlabel">備註內容</p>'
+    +'<textarea class="ta" id="h-body">'+esc(h?h.body:"")+'</textarea></div>'
+    +'<button class="big go" onclick="hubSave(\''+kind+'\','+(id||0)+')">'+(h?"儲存修改":"新增")+'</button>'
+    +(h?'<button class="big warn" onclick="hubDel('+h.id+')">刪除這一筆</button>':'')
+    +'<button class="big sec" onclick="closeSheet()">取消</button></div>'
+  openSheet();setTimeout(function(){$("#h-title").focus()},250)
+}
+async function hubSave(kind,id){
+  var t=$("#h-title").value.trim()
+  var ph=$("#h-phone").value.trim()
+  var bd=$("#h-body").value.trim()
+  if(!t){toast("請填寫名稱");return}
+  closeSheet()
+  if(id){
+    await send({action:"hubEdit",id:id,title:t,phone:ph,body:bd},function(){
+      var h=hub.filter(function(x){return x.id===id})[0]
+      if(h){h.title=t;h.phone=ph;h.body=bd}})
+    toast("已儲存")
+  }else{
+    await send({action:"hubAdd",kind:kind,title:t,phone:ph,body:bd},function(){
+      hub.push({id:-Date.now(),kind:kind,title:t,phone:ph,body:bd,done:false})})
+    toast("已新增")
+  }
+}
+function hubDone(id,v){
+  var h=hub.filter(function(x){return x.id===id})[0];if(!h)return
+  if(!v){ doHubDone(id,false); return }
+  askConfirm({
+    title:"確認這一項已處理完畢？",
+    who:h.title, to:"標記為已處理",
+    note:"標記後會變成灰底劃掉，隨時可以按「回復未處理」改回來。",
+    yes:"確認已處理",
+    onYes:function(){doHubDone(id,true)}
+  })
+}
+async function doHubDone(id,v){
+  await send({action:"hubDone",id:id,done:v},function(){
+    var h=hub.filter(function(x){return x.id===id})[0];if(h)h.done=v})
+  toast(v?"已標記處理完畢":"已回復為未處理")
+}
+function hubDel(id){
+  var h=hub.filter(function(x){return x.id===id})[0];if(!h)return
+  closeSheet()
+  askConfirm({
+    title:"確認刪除？", who:h.title,
+    to:"這一筆會永久消失",
+    note:"刪除之後無法復原。只是處理完畢的話，請改按「已處理」。",
+    yes:"確認刪除",
+    onYes:function(){doHubDel(id)}
+  })
+}
+async function doHubDel(id){
+  await send({action:"hubDel",id:id},function(){
+    hub=hub.filter(function(x){return x.id!==id})})
+  toast("已刪除")
 }
 
 /* ═══════ 總覽 ═══════ */
@@ -1388,10 +1536,10 @@ function renderDash(w){
     +tables.map(function(t){
       var ps=rows.filter(function(p){return p.table===t})
       var a=headSum(ps.filter(function(p){return p.stage===3})),tt2=headSum(ps)
-      var st=tt2>TABLE_CAP?"over":(a===0?"none":a===tt2?"full":"part")
+      var st=tt2>capOf(t)?"over":(a===0?"none":a===tt2?"full":"part")
       return '<button class="tcard" data-st="'+st+'" onclick="openTableRoster('+t+')">'
         +'<span class="n">'+t+'</span><span class="c">'+a+'/'+tt2+'</span>'
-        +(tt2>TABLE_CAP?'<span class="ov">超額</span>':'')+'</button>'}).join("")
+        +(tt2>capOf(t)?'<span class="ov">超額</span>':'')+'</button>'}).join("")
     +'</div></div>'
     +(perms.seeTotals?'<div class="card"><h3>資料</h3><div class="util">'
       +'<button onclick="exportCSV()">匯出 CSV</button></div>'
