@@ -1111,13 +1111,26 @@ function offlineBanner(){
   }
   return ""
 }
+var boxSide=(function(){try{return localStorage.getItem("wedBoxSide")||""}catch(e){return ""}})()
+function setBoxSide(v){boxSide=v;try{localStorage.setItem("wedBoxSide",v)}catch(e){}
+  prevIds=new Set();render()}
+function boxSideBar(){
+  return '<p class="sect" style="margin-top:0">你負責哪一方的喜餅？</p><div class="seg" style="margin-bottom:16px">'
+    +'<button '+(boxSide==="女"?'data-on="1"':'')+' onclick="setBoxSide(\'女\')">女方發餅</button>'
+    +'<button '+(boxSide==="男"?'data-on="1"':'')+' onclick="setBoxSide(\'男\')">男方發餅</button></div>'
+}
 function renderBox(w){
-  var q=rows.filter(function(p){return p.stage===1})
+  if(boxSide!=="女"&&boxSide!=="男"){
+    w.innerHTML=offlineBanner()+boxSideBar()
+      +'<div class="idle"><span class="mk">✦</span>請先選擇你負責女方或男方<br>之後只會顯示這一方的賓客</div>'
+    prevIds=new Set();return
+  }
+  var q=rows.filter(function(p){return p.stage===1&&p.side===boxSide})
   var ids=new Set(q.map(function(p){return p.id})),fresh=false
   ids.forEach(function(i){if(!prevIds.has(i))fresh=true})
   if(prevIds.size&&fresh)ping()
   var cur=q[0]
-  var html=offlineBanner()
+  var html=offlineBanner()+boxSideBar()
   if(cur){
     var k=kOf(cur)
     html+='<div class="now k'+k+'"><div class="strip"></div><div class="body">'
@@ -1135,10 +1148,10 @@ function renderBox(w){
       +'<button class="act" onclick="gaveBox('+cur.id+')">確認發出喜餅</button>'
       +'<button class="act sec" onclick="openFix('+cur.id+')">賓客資料與備註</button>'
       +'</div>'
-      +(q.length>1?'<div class="nextup">接下來還有 <b>'+(q.length-1)+'</b> 位等待領餅</div>':'')
+      +(q.length>1?'<div class="nextup">'+boxSide+'方接下來還有 <b>'+(q.length-1)+'</b> 位等待領餅</div>':'')
       +'</div>'
   }else{
-    html+='<div class="idle"><span class="mk">✦</span>目前沒有待發的喜餅<br>收禮台完成登記後會自動出現在這裡</div>'
+    html+='<div class="idle"><span class="mk">✦</span>目前沒有'+boxSide+'方待發的喜餅<br>'+boxSide+'方收禮台完成登記後會自動出現在這裡</div>'
   }
   html+='<p class="sect">找不到人？直接搜尋姓名</p>'
     +'<div class="searchwrap"><input id="bq" placeholder="輸入姓名或桌次" autocomplete="off" '
@@ -1217,7 +1230,7 @@ function gaveBox(id){
     title:"確認發出喜餅",
     who:p.name+"　第 "+p.table+" 桌",
     to:kName(k),
-    note:"",
+    note:"交出前先問一句「請問是"+p.name+"嗎？」確認是本人。",
     yes:"已交給賓客",
     onYes:function(){doGaveBox(id)}
   })
