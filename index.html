@@ -19,6 +19,7 @@
   --k1:#A98443; --k1bg:#F7F1E3; --k1l:#EBDFC4;   /* 卡柏蒂 CUPETIT */
   --k2:#6E9AD0; --k2bg:#EBF2FB; --k2l:#D3E2F4;   /* 赫拉（小） */
   --k3:#1E6B7A; --k3bg:#E0EEF1; --k3l:#C4DEE4;   /* 赫拉（大） */
+  --k0:#7A7A7A; --k0bg:#EDEDED; --k0l:#D6D6D6;   /* 不需給餅 */
   --k4:#1E6B7A; --k4bg:#E0EEF1; --k4l:#C4DEE4;
   --ok:#2A8474; --okbg:#E2F2EF; --warn:#B9713F; --warnbg:#FAEFE6;
   --ivory:#F6F1E6;
@@ -179,6 +180,12 @@ input{font-family:inherit;font-size:inherit}
 .chip.k4{background:var(--k4bg);color:var(--k4)}
 .chip.ok{background:var(--okbg);color:var(--ok)}
 .chip.nf{background:var(--tint);color:var(--aqua-d)}
+.chip.k0{background:var(--k0bg);color:var(--k0)} .bar.k0{background:var(--k0)} .badge.k0{background:var(--k0bg);color:var(--k0)}
+.rcard.k0 .rb{background:var(--k0)} .now.k0 .strip{background:var(--k0)}
+.g2 .c.k0{background:var(--k0bg);border-color:var(--k0l)} .g2 .c.k0 .vl{color:var(--k0)}
+.chip.ab{background:#E4E4E4;color:#666}
+.row.absent,.rc.absent,.nitem.absent{background:#ECECEC !important;border-color:#D8D8D8 !important;opacity:.75}
+.row.absent .rname,.rc.absent .rn{color:#777}
 .rowgo{flex:0 0 62px;display:flex;align-items:center;justify-content:center;color:var(--dim);
   font-size:21.5px;border-left:1px solid var(--line);text-align:center;line-height:1.25}
 .rowgo.edit{background:var(--aqua-l);color:var(--aqua-d);font-size:14px;font-weight:500}
@@ -401,8 +408,9 @@ var prevIds=new Set(), audioCtx=null, shellRole=null,
 var boxNames={
   '1':'卡柏蒂 CUPETIT',
   '2':'赫拉（小）',
-  '3':'赫拉（大）'}
-var boxWho={'1':'女方長輩','2':'男方長輩','3':'男方・女方朋友'}
+  '3':'赫拉（大）',
+  '0':'不需給餅'}
+var boxWho={'1':'女方長輩','2':'男方長輩','3':'男方・女方朋友','0':'不發喜餅，收禮後直接送接待'}
 function kWho(k){return boxWho[k]||''}
 var PRODUCTS=['卡柏蒂 CUPETIT','赫拉（小）','赫拉（大）']
 /* 一人一盒，保留這兩個函式讓其他畫面沿用同一套寫法 */
@@ -411,8 +419,9 @@ function isDouble(k){return false}
 function normK(v){
   if(v===undefined||v===null)return ""
   v=String(v).trim()
-  if(v==="1"||v==="2"||v==="3")return v
+  if(v==="0"||v==="1"||v==="2"||v==="3")return v
   if(!v)return ""
+  if(v.indexOf("不給")>=0||v.indexOf("不需")>=0)return "0"
   var u=v.toUpperCase()
   if(v.indexOf("卡")>=0||u.indexOf("CUPETIT")>=0)return "1"
   if(v.indexOf("小")>=0)return "2"
@@ -428,8 +437,19 @@ function kOf(p){
   return "3"
 }
 function unspecified(p){ return !normK(p.boxSet) }
-var K_LIST=["1","2","3"]
-var K_CANON={'1':'卡','2':'赫小','3':'赫大'}
+var K_LIST=["1","2","3"]          // 實際要發的三款
+var K_ALL=["1","2","3","0"]       // 總召修改時可選（含不需給餅）
+var K_CANON={'1':'卡','2':'赫小','3':'赫大','0':'不給餅'}
+/* 「有給禮金就給赫大」：有包紅包才給餅、沒包就直接入席 */
+function isCond(p){return String(p.boxSet||"").indexOf("有給禮金")>=0||String(p.boxSet||"").indexOf("有包")>=0}
+/* 備註寫「不參加」：保留資料、灰底顯示，但不計入桌位人數 */
+function isAbsent(p){return String(p.note||"").indexOf("不參加")>=0}
+/* 備註寫「帶走 N 盒」：一個人代領多盒 */
+function boxQty(p){var m=String(p.note||"").match(/帶走\s*(\d+)\s*盒/);return m?Number(m[1]):1}
+function qtySum(list){return list.reduce(function(a,p){return a+boxQty(p)},0)}
+function hasEnv(p){return !!(p.envNo&&p.envNo!=="—")}
+function absCls(p){return isAbsent(p)?" absent":""}
+function absChip(p){return isAbsent(p)?'<span class="chip ab">不參加・不計桌位</span>':''}
 function kName(k){return boxNames[k]||("款"+k)}
 var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -444,7 +464,7 @@ function overTables(){
   var ts=[];rows.forEach(function(p){if(ts.indexOf(p.table)<0)ts.push(p.table)})
   return ts.filter(function(t){return t>0&&tableHeads(t)>capOf(t)}).sort(function(a,b){return a-b})
 }
-function headSum(list){return list.reduce(function(a,p){return a+heads(p)},0)}
+function headSum(list){return list.reduce(function(a,p){return a+(isAbsent(p)?0:heads(p))},0)}
 function plusTag(p){return (Number(p.plus)||0)>0 ? '＋'+p.plus : ''}
 
 function setNet(s){var e=$("#net")
@@ -743,8 +763,9 @@ function openFix(id,back){
   $("#sheetIn").innerHTML='<div class="shead"><h2>'+esc(p.name)+'</h2>'
     +'<div class="rmeta" style="margin-top:8px"><span class="chip k'+k+'">'+esc(kName(k))+'</span>'
     +'<span>'+(p.noFee?"免收禮":esc(p.envNo||"尚未收禮"))+'</span>'
-    +(p.noFee?'<span class="chip nf">不收紅包</span>':'')+'</div></div>'
+    +(p.noFee?'<span class="chip nf">不收紅包</span>':'')+absChip(p)+'</div></div>'
     +'<div class="sbody">'
+    +(isAbsent(p)?'<div class="callout wait" style="margin-bottom:16px"><b>這位標記為不參加</b><br>資料保留著，但不計入桌位人數。如果人突然到場，請找總召恢復。</div>':'')
     +'<p class="panelh">賓客資料</p>'
     +'<div class="g2">'
     +'<div class="c"><span class="vl">'+esc(p.name)+'</span></div>'
@@ -766,9 +787,25 @@ function openFix(id,back){
     +'<button class="big go" onclick="saveNote('+id+')">儲存備註</button>'
     +(perms.canEnterAmount?'<button class="big sec" onclick="closeSheet();setTimeout(function(){openGift('+id+')},220)">改紅包編號或金額</button>':'')
     +(perms.seeTotals?'<button class="big sec" onclick="openFixEdit('+id+')">總召：修改基本資料</button>':'')
+    +(perms.seeTotals?'<button class="big sec" onclick="toggleAbsent('+id+')">'
+      +(isAbsent(p)?'總召：人到了，恢復計入桌位':'總召：標記為不參加')+'</button>':'')
     +'<button class="big sec" onclick="closeSheet()">關閉</button>'
     +'</div>'
   openSheet()
+}
+function toggleAbsent(id){
+  var p=byId(id);if(!p)return
+  var had=(p.note||"").trim(),v
+  if(isAbsent(p))v=had.replace(/不參加[，,、；;\s]*/g,"").trim()
+  else v=had?("不參加，"+had):"不參加"
+  askConfirm({
+    title:isAbsent(p)?"恢復計入桌位？":"標記為不參加？",
+    who:p.name+"　第 "+p.table+" 桌　共 "+heads(p)+" 位",
+    from:had||"（無備註）", to:v||"（清除）",
+    note:isAbsent(p)?"恢復後這 "+heads(p)+" 位會算回第 "+p.table+" 桌。":"資料保留，只是不計入桌位人數。",
+    yes:"確認",
+    onYes:function(){doSaveNote(id,v,null)}
+  })
 }
 function saveNote(id){
   var p=byId(id);if(!p)return
@@ -805,7 +842,7 @@ function openFixEdit(id){
     +'<div class="field"><p class="fieldlabel">桌次</p><input class="tin" id="x-table" inputmode="numeric" value="'+p.table+'"></div>'
     +'<div class="field"><p class="fieldlabel">攜伴人數（不含本人）</p><input class="tin" id="x-plus" inputmode="numeric" value="'+(Number(p.plus)||0)+'"></div>'
     +'<div class="field"><p class="fieldlabel">喜餅款式</p><div class="seg">'
-    +K_LIST.map(function(n){
+    +K_ALL.map(function(n){
       return '<button id="x-k'+n+'" '+(k===n?'data-on="1"':'')+' onclick="setFixK(\''+n+'\')">'
         +esc(boxNames[n])+'<br><span style="font-size:12.5px;opacity:.75">'+esc(kWho(n))+'</span></button>'}).join("")
     +'</div></div>'
@@ -823,7 +860,7 @@ function setFixFee(v){window._fixNoFee=v
   else{$("#x-fee").dataset.on="1";$("#x-nofee").removeAttribute("data-on")}}
 function setFixK(k){
   window._fixBoxSet=K_CANON[k]||""
-  ;K_LIST.forEach(function(n){
+  ;K_ALL.forEach(function(n){
     var el=$("#x-k"+n)
     if(n===k)el.dataset.on="1";else el.removeAttribute("data-on")})
 }
@@ -853,8 +890,10 @@ function saveFix(id){
 async function doSaveFix(id,nm,tb,pt,nf,bs){
   var cur=byId(id)
   var k=normK(bs)
-  var el=k?(k==="1"||k==="2"):(cur?cur.elder:false)
-  var sd=k?((k==="3")?"男":"女"):(cur?cur.side:"女")
+  /* 方（男女）不跟著餅款變，避免女方朋友改成赫大後被移到男方收禮台 */
+  var el=(k==="1"||k==="2")?true:(cur?cur.elder:false)
+  var sd=cur?cur.side:"女"
+  if(k&&!bs)bs=K_CANON[k]
   closeSheet()
   await send({action:"fix",id:id,name:nm,table:tb,plus:pt,elder:el,side:sd,noFee:nf,boxSet:bs},function(){
     var p=byId(id);if(p){p.name=nm;p.table=tb;p.plus=pt;p.elder=el;p.side=sd;p.noFee=nf;p.boxSet=bs
@@ -947,8 +986,8 @@ function paintRecent(){
     var k=kOf(p)
     return '<button class="rcard k'+k+'" onclick="openGift('+p.id+')">'
       +'<span class="rb"></span><span class="rt"><b>'+esc(p.name)+'</b>'
-      +'<span>'+(p.noFee?'免收禮':esc(p.envNo))+'　第 '+p.table+' 桌'
-      +(p.noFee?'':(p.amount!=null?'　NT$ '+p.amount.toLocaleString():'　金額未填'))+'</span></span>'
+      +'<span>'+(p.noFee?'免收禮':(hasEnv(p)?esc(p.envNo):'未包紅包'))+'　第 '+p.table+' 桌'
+      +((p.noFee||!hasEnv(p))?'':(p.amount!=null?'　NT$ '+p.amount.toLocaleString():'　金額未填'))+'</span></span>'
       +'<span class="re">修改</span></button>'}).join("")
 }
 function paintKpis(){
@@ -960,7 +999,7 @@ function paintKpis(){
     +'<div class="s">下一號 '+nextEnvPreview(side)+'</div></div>'
   if(perms.canEnterAmount){
     var sum=mine.filter(function(p){return p.amount!=null}).reduce(function(a,p){return a+p.amount},0)
-    var pend=mine.filter(function(p){return p.stage>0&&p.amount==null&&!p.noFee}).length
+    var pend=mine.filter(function(p){return p.stage>0&&p.amount==null&&!p.noFee&&hasEnv(p)}).length
     html+='<div class="kpi"><div class="k">'+side+'方小計</div>'
       +'<div class="v" style="font-size:29px">'+sum.toLocaleString()+'</div>'
       +'<div class="s">'+pend+' 筆待補金額</div></div>'
@@ -978,12 +1017,13 @@ function paintResults(){
   else list=list.filter(function(p){return p.stage>0}).slice(-6).reverse()
   $("#results").innerHTML=list.length?list.slice(0,60).map(function(p){
     var k=kOf(p)
-    return '<div class="row '+(p.stage>0?"done":"")+'" onclick="openGift('+p.id+')">'
+    return '<div class="row '+(p.stage>0?"done":"")+absCls(p)+'" onclick="openGift('+p.id+')">'
       +'<div class="bar k'+k+'"></div><div class="rowmain"><div class="rname">'+esc(p.name)+'</div>'
       +'<div class="rmeta"><span class="chip k'+k+'">'+esc(kName(k))+'</span><span>第 '+p.table+' 桌</span>'
       +(p.noFee?'<span class="chip nf">免收禮</span>':'')
+      +(isCond(p)?'<span class="chip nf">不收禮・有包才給餅</span>':'')+absChip(p)
       +(heads(p)>1?'<span>共 '+heads(p)+' 位（'+plusTag(p)+'）</span>':'')
-      +(p.stage>0?'<span class="chip ok">'+esc(p.envNo)+' · '+STAGE_NAMES[p.stage]+'</span>':'')+'</div></div>'
+      +(p.stage>0?'<span class="chip ok">'+(hasEnv(p)?esc(p.envNo):(p.noFee?'免收禮':'未包'))+' · '+STAGE_NAMES[p.stage]+'</span>':'')+'</div></div>'
       +'<div class="rowgo'+(p.stage>0?" edit":"")+'">'+(p.stage>0?"修改<br>金額":"›")+'</div></div>'}).join("")
     :'<div class="empty">'+(q?'名單上沒有「'+esc(q)+'」':'輸入姓名開始收禮')
       +'<br>可用下方按鈕新增名單外賓客</div>'
@@ -1006,6 +1046,11 @@ function openGift(id){
     +'<div class="sbody">'
     +((p.note&&p.note.trim())
       ? '<div class="callout wait" style="margin-bottom:16px"><b>備註</b><br>'+esc(p.note)+'</div>' : '')
+    +((isCond(p)&&p.stage===0)
+      ? '<div class="callout go" style="margin-bottom:16px"><b>這位不收禮，有包紅包才給喜餅（赫拉大）</b><br>'
+        +'有包紅包：照平常收禮，按綠色按鈕送到發餅台。<br>沒有包紅包：按最下面的「沒有包紅包，直接入席」，不給餅、不佔編號。</div>' : '')
+    +((k==="0"&&p.stage===0)
+      ? '<div class="callout go" style="margin-bottom:16px"><b>這位不需給餅</b><br>完成後會略過發餅台，直接送到接待。</div>' : '')
     +(p.noFee
       ? '<div class="callout go" style="margin-bottom:20px"><b>這位是免收禮賓客</b><br>'
         +'不需要收紅包，也不會佔用編號。直接按下方按鈕完成報到即可。</div>'
@@ -1018,7 +1063,9 @@ function openGift(id){
     +'<p class="note">目前這一組共 '+heads(p)+' 位。</p></div>'
     +amtField
     +'<button class="big go" onclick="doneGift('+id+')">'
-    +(p.stage>0?"儲存修改":(p.noFee?"完成報到　→　送到發餅台":"完成收禮　→　送到發餅台"))+'</button>'
+    +(p.stage>0?"儲存修改":(k==="0"?(p.noFee?"完成報到　→　送到接待":"完成收禮　→　送到接待")
+      :(p.noFee?"完成報到　→　送到發餅台":"完成收禮　→　送到發餅台")))+'</button>'
+    +((isCond(p)&&p.stage===0)?'<button class="big sec" onclick="condNoGift('+id+')">沒有包紅包，直接入席（不給餅）</button>':'')
     +'<button class="big sec" onclick="openFix('+id+')">賓客資料與備註</button>'
     +(p.stage>0?'<p class="note">目前進度：'+STAGE_NAMES[p.stage]+'</p>':'')
     +'</div>'
@@ -1035,7 +1082,7 @@ function doneGift(id){
     who:p.name+"　第 "+p.table+" 桌",
     from:(p.stage>0&&!p.noFee)?((p.envNo||"—")+"　NT$ "+(p.amount!=null?p.amount.toLocaleString():"未填")):undefined,
     to:lines,
-    yes:p.stage>0?"確認儲存":"確認，送到發餅台",
+    yes:p.stage>0?"確認儲存":(kOf(p)==="0"?"確認，送到接待":"確認，送到發餅台"),
     onYes:function(){doDoneGift(id,no,ae?ae.value.trim():"",$("#f-plus")?$("#f-plus").value.trim():"")}
   })
 }
@@ -1051,8 +1098,29 @@ async function doDoneGift(id,no,amtRaw,plusRaw){
   }else{
     await send({action:"checkin",id:id,amount:amt,plus:pt},function(){
       p.stage=1;p.amount=amt;p.envNo=no;p.plus=pt})
-    toast(p.noFee?"已報到（免收禮），發餅台會收到通知":"已送出，發餅台會收到通知")
+    if(kOf(p)==="0"){
+      await send({action:"stage",id:id,stage:2},function(){p.stage=2})
+      toast("已報到（不需給餅），直接送到接待")
+    }else toast(p.noFee?"已報到（免收禮），發餅台會收到通知":"已送出，發餅台會收到通知")
   }
+  var qq=$("#q");if(qq){qq.value="";paintRecent();paintResults();qq.focus()}
+}
+
+function condNoGift(id){
+  var p=byId(id);if(!p)return
+  askConfirm({
+    title:"沒有包紅包，直接入席？",
+    who:p.name+"　第 "+p.table+" 桌",
+    to:"不給喜餅・不佔紅包編號",
+    note:"確定賓客沒有包紅包才按。之後如果補包，請找總召。",
+    yes:"確認，直接入席",
+    onYes:function(){doCondNoGift(id)}
+  })
+}
+async function doCondNoGift(id){
+  closeSheet()
+  await send({action:"stage",id:id,stage:2},function(){var p=byId(id);if(p)p.stage=2})
+  toast("已送到接待（未包紅包、不給餅）")
   var qq=$("#q");if(qq){qq.value="";paintRecent();paintResults();qq.focus()}
 }
 
@@ -1090,7 +1158,8 @@ async function saveWalkin(target){
   var pt=Number($("#w-plus").value.trim())||0
   if(!nm){toast("請輸入姓名");return}
   closeSheet()
-  var d=await send({action:"add",name:nm,side:wiK==="2"?"男":"女",elder:(wiK==="1"||wiK==="2"),
+  var wiSide=role==="gF"?"女":role==="gM"?"男":(target==="box"&&(boxSide==="女"||boxSide==="男"))?boxSide:(wiK==="2"?"男":"女")
+  var d=await send({action:"add",name:nm,side:wiSide,elder:(wiK==="1"||wiK==="2"),
     rel:target==="box"?"未收禮":"臨時",table:t,plus:pt,noFee:wiNoFee,
     boxSet:(K_CANON[wiK]||""),stage:target==="box"?2:0})
   if(t>0&&tableHeads(t)>capOf(t))toast("注意：第 "+t+" 桌已達 "+tableHeads(t)+" 位，超過上限 "+capOf(t))
@@ -1125,7 +1194,7 @@ function renderBox(w){
       +'<div class="idle"><span class="mk">✦</span>請先選擇你負責女方或男方<br>之後只會顯示這一方的賓客</div>'
     prevIds=new Set();return
   }
-  var q=rows.filter(function(p){return p.stage===1&&p.side===boxSide})
+  var q=rows.filter(function(p){return p.stage===1&&p.side===boxSide&&kOf(p)!=="0"})
   var ids=new Set(q.map(function(p){return p.id})),fresh=false
   ids.forEach(function(i){if(!prevIds.has(i))fresh=true})
   if(prevIds.size&&fresh)ping()
@@ -1138,7 +1207,8 @@ function renderBox(w){
       +'<div class="nowname">'+esc(cur.name)+'</div>'
       +'<div class="nowitems">'
       +kItems(k).map(function(it,ix){
-        return '<div class="item"><span class="num">'+(ix+1)+'</span><span>'+esc(it)+'</span></div>'}).join("")
+        return '<div class="item"><span class="num">'+(boxQty(cur)>1?'×'+boxQty(cur):(ix+1))+'</span><span>'+esc(it)
+          +(boxQty(cur)>1?'　共 '+boxQty(cur)+' 盒':'')+'</span></div>'}).join("")
       +'</div>'
       +((cur.note&&cur.note.trim())?'<div class="dbl" style="margin-top:14px">'+esc(cur.note)+'</div>':'')
       +'<div class="nowmeta"><span class="badge k'+k+'">'+esc(kWho(k))+'</span>'
@@ -1161,13 +1231,13 @@ function renderBox(w){
     +'<p class="sect" style="margin-top:22px">全部款式進度</p><div class="cats">'
   ;K_LIST.forEach(function(k){
     var all=rows.filter(function(p){return kOf(p)===k})
-    var out=all.filter(function(p){return p.stage>=2}).length
-    var pc=all.length?Math.round(out/all.length*100):0
+    var out=qtySum(all.filter(function(p){return p.stage>=2})),tot=qtySum(all)
+    var pc=tot?Math.round(out/tot*100):0
     html+='<button class="cat k'+k+'" onclick="openBoxRoster(\''+k+'\')">'
       +'<span class="dot"></span><span class="nm"><b>'+esc(kName(k))+'</b>'
-      +'<span>'+esc(kWho(k))+'　尚有 '+(all.length-out)+' 組未發</span>'
+      +'<span>'+esc(kWho(k))+'　尚有 '+(tot-out)+' 盒未發</span>'
       +'<span class="mini"><i style="width:'+pc+'%"></i></span></span>'
-      +'<span class="ct"><b>'+out+'</b><span> / '+all.length+'</span></span></button>'
+      +'<span class="ct"><b>'+out+'</b><span> / '+tot+'</span></span></button>'
   })
   html+='</div><div class="util" style="margin-top:14px">'
     +'<button onclick="walkinForm(\'box\')">未包禮金者直接領餅</button></div>'
@@ -1195,28 +1265,29 @@ function paintBoxSearch(){
       +'請用下方「未包禮金者直接領餅」新增</div>';return
   }
   box.innerHTML=list.slice(0,40).map(function(p){
-    var k=kOf(p),done=p.stage>=2
-    return '<div class="row '+(done?"done":"")+'" onclick="'
+    var k=kOf(p),done=p.stage>=2||k==="0"
+    return '<div class="row '+(done?"done":"")+absCls(p)+'" onclick="'
       +(done?'openFix('+p.id+')':'gaveBox('+p.id+')')+'">'
       +'<div class="bar k'+k+'"></div><div class="rowmain">'
       +'<div class="rname">'+esc(p.name)+'</div>'
       +'<div class="rmeta"><span class="chip k'+k+'">'+esc(kName(k))+'</span>'
       +'<span>第 '+p.table+' 桌</span>'
       +(heads(p)>1?'<span>共 '+heads(p)+' 位</span>':'')
-      +(done?'<span class="chip ok">已領取</span>':'')+'</div></div>'
+      +(boxQty(p)>1?'<span class="chip k'+k+'">代領 '+boxQty(p)+' 盒</span>':'')+absChip(p)
+      +(k==="0"?'':(p.stage>=2?'<span class="chip ok">已領取</span>':''))+'</div></div>'
       +'<div class="rowgo'+(done?"":" edit")+'">'+(done?"✎":"發出<br>喜餅")+'</div></div>'}).join("")
 }
 function openBoxRoster(k){
   var all=rows.filter(function(p){return kOf(p)===k})
-  var out=all.filter(function(p){return p.stage>=2}).length
+  var out=qtySum(all.filter(function(p){return p.stage>=2})),tot=qtySum(all)
   $("#sheetIn").innerHTML='<div class="shead"><h2>'+esc(kName(k))+'</h2>'
-    +'<div class="rmeta" style="margin-top:6px"><span>已發出 '+out+' 盒，尚有 '+(all.length-out)+' 盒未發</span></div></div>'
+    +'<div class="rmeta" style="margin-top:6px"><span>已發出 '+out+' 盒，尚有 '+(tot-out)+' 盒未發</span></div></div>'
     +'<div class="sbody"><div class="rost">'
     +all.map(function(p){
       var cls=p.stage>=2?"done":(p.stage===1?"wait":"")
       var st=p.stage>=2?"已領取":(p.stage===1?"待發餅":"未到")
-      return '<button class="rc '+cls+'" onclick="openFix('+p.id+',function(){openBoxRoster(\''+k+'\')})">'
-        +'<div class="rn">'+esc(p.name)+'</div>'
+      return '<button class="rc '+cls+absCls(p)+'" onclick="openFix('+p.id+',function(){openBoxRoster(\''+k+'\')})">'
+        +'<div class="rn">'+esc(p.name)+(boxQty(p)>1?'<span class="pt">×'+boxQty(p)+'</span>':'')+'</div>'
         +'<div class="rs">'+st+'　'+p.table+'桌</div></button>'}).join("")
     +'</div><p class="note">刪去線代表已領取。點任何一位可查看資料、改進度或加備註。</p>'
     +'<button class="big sec" onclick="closeSheet()">關閉</button></div>'
@@ -1226,10 +1297,11 @@ function gaveBox(id){
   var p=byId(id);if(!p)return
   if(p.stage>=2){toast(p.name+" 已經領過了");return}
   var k=kOf(p)
+  if(k==="0"){toast(p.name+" 不需給餅");return}
   askConfirm({
     title:"確認發出喜餅",
     who:p.name+"　第 "+p.table+" 桌",
-    to:kName(k),
+    to:kName(k)+(boxQty(p)>1?"　共 "+boxQty(p)+" 盒":""),
     note:"交出前先問一句「請問是"+p.name+"嗎？」確認是本人。",
     yes:"已交給賓客",
     onYes:function(){doGaveBox(id)}
@@ -1298,9 +1370,9 @@ function openTableRoster(t){
       var cls=p.stage===3?"done":(p.stage===2?"wait":"")
       var st=p.stage===3?"已入席":STAGE_NAMES[p.stage]
       var pt=plusTag(p)
-      return '<button class="rc '+cls+'" onclick="openFix('+p.id+',function(){openTableRoster('+t+')})">'
+      return '<button class="rc '+cls+absCls(p)+'" onclick="openFix('+p.id+',function(){openTableRoster('+t+')})">'
         +'<div class="rn">'+esc(p.name)+(pt?'<span class="pt">'+pt+'</span>':'')+'</div>'
-        +'<div class="rs">'+st+(pt?'　共 '+heads(p)+' 位':'')+'</div></button>'}).join("")
+        +'<div class="rs">'+(isAbsent(p)?'不參加・不計桌位':st+(pt?'　共 '+heads(p)+' 位':''))+'</div></button>'}).join("")
     +'</div><p class="note">名字後面的 ＋N 是攜伴人數。整組一起報到，主賓客劃掉即代表同行者都已入席。</p>'
     +'<button class="big sec" onclick="closeSheet()">關閉</button></div>'
   openSheet()
@@ -1330,16 +1402,20 @@ function renderHub(w){
   var openN=todo.filter(function(h){return !h.done}).length
 
   // 喜餅即時數量，打電話給廠商時直接唸
-  var cnt={},undec=0
-  K_LIST.forEach(function(k){cnt[k]=0})
+  var cnt={},undec=0,cond=0
+  K_ALL.forEach(function(k){cnt[k]=0})
   rows.forEach(function(p){
     if(unspecified(p)){undec++;return}
-    cnt[kOf(p)]++
+    var k=kOf(p)
+    cnt[k]+=(k==="0"?1:boxQty(p))
+    if(isCond(p))cond++
   })
   var cake='<div class="card"><h3>喜餅數量・即時</h3>'
     +K_LIST.map(function(k){
       return '<div class="line"><span><b style="color:var(--k'+k+')">●</b> '+esc(kName(k))+'</span>'
         +'<span><b>'+cnt[k]+'</b> 盒</span></div>'}).join("")
+    +(cond?'<div class="line" style="color:var(--muted)"><span>　其中有包紅包才給（赫拉大）</span><span>'+cond+' 盒</span></div>':'')
+    +'<div class="line" style="color:var(--muted)"><span>不需給餅</span><span>'+cnt["0"]+' 位</span></div>'
     +(undec?'<div class="line" style="color:var(--warn)"><span>尚未決定款式</span>'
       +'<span><b>'+undec+'</b> 位</span></div>':'')
     +'<div class="line"><span>賓客合計</span><span><b>'+rows.length+'</b> 組・'+headSum(rows)+' 位</span></div>'
@@ -1444,7 +1520,7 @@ function renderDash(w){
   if(!tot){w.innerHTML='<div class="callout err">試算表裡還沒有名單。請在「名單」工作表貼上資料，或用選單「婚宴系統 → 填入示範資料」。</div>';return}
   var totH=headSum(rows)
   var arrRows=rows.filter(function(p){return p.stage>0})
-  var arr=headSum(arrRows), bags=arrRows.filter(function(p){return !p.noFee}).length
+  var arr=headSum(arrRows), bags=arrRows.filter(function(p){return !p.noFee&&hasEnv(p)}).length
   var noFeeAll=rows.filter(function(p){return p.noFee})
   var seated=headSum(rows.filter(function(p){return p.stage===3}))
   var seatedRows=rows.filter(function(p){return p.stage===3}).length
@@ -1466,13 +1542,23 @@ function renderDash(w){
       +over.map(function(t){
         var h=tableHeads(t)
         return '<button class="nitem" onclick="openTableRoster('+t+')"><span class="nb">'
-          +'<b>第 '+t+' 桌</b><i>含攜伴共 '+h+' 位，超過上限 '+(h-TABLE_CAP)+' 位</i>'
+          +'<b>第 '+t+' 桌</b><i>含攜伴共 '+h+' 位，超過上限 '+(h-capOf(t))+' 位</i>'
           +'<em>'+tableRows(t).length+' 組賓客</em></span><span class="ngo">›</span></button>'}).join("")
       +'<p class="note" style="color:var(--warn)">每桌上限 '+TABLE_CAP+' 位。點進去可查看該桌名單。</p></div>'
   }
 
   /* 工作人員備註 */
-  var noted=rows.filter(function(p){return p.note&&p.note.trim()})
+  var noted=rows.filter(function(p){return p.note&&p.note.trim()&&!isAbsent(p)&&boxQty(p)===1})
+  var absList=rows.filter(isAbsent),absCard=""
+  if(absList.length){
+    absCard='<div class="card" style="background:#F1F1F1;border-color:#D8D8D8">'
+      +'<h3 style="color:#666">不參加・保留資料<span class="notebadge" style="background:#E0E0E0;color:#666">'+absList.length+'</span></h3>'
+      +absList.map(function(p){
+        return '<button class="nitem absent" onclick="openFix('+p.id+')"><span class="nb"><b>'+esc(p.name)+'</b>'
+          +'<i>'+esc(p.note)+'</i><em>原第 '+p.table+' 桌　共 '+heads(p)+' 位（不計入桌位）</em></span>'
+          +'<span class="ngo">›</span></button>'}).join("")
+      +'<p class="note">人如果突然到場，點進去按「人到了，恢復計入桌位」。</p></div>'
+  }
   var noteCard=""
   if(noted.length){
     noteCard='<div class="card" style="border-color:#E8C0A4;background:var(--warnbg)">'
@@ -1489,7 +1575,7 @@ function renderDash(w){
   var money=""
   if(perms.seeTotals){
     var sum=rows.filter(function(p){return p.amount!=null}).reduce(function(a,p){return a+p.amount},0)
-    var noAmt=rows.filter(function(p){return p.stage>0&&p.amount==null&&!p.noFee}).length
+    var noAmt=rows.filter(function(p){return p.stage>0&&p.amount==null&&!p.noFee&&hasEnv(p)}).length
     money='<div class="card"><h3>禮金</h3>'
       +'<div class="line"><span>已登錄金額合計</span><span><b>NT$ '+sum.toLocaleString()+'</b></span></div>'
       +'<div class="line"><span>已收紅包袋數</span><span><b>'+bags+'</b> 袋</span></div>'
@@ -1504,10 +1590,11 @@ function renderDash(w){
   var boxCard='<div class="card"><h3>喜餅發放</h3>'
     +K_LIST.map(function(k){
       var all=rows.filter(function(p){return kOf(p)===k})
-      var out=all.filter(function(p){return p.stage>=2}).length
+      var out=qtySum(all.filter(function(p){return p.stage>=2}))
       return '<div class="line"><span><b style="color:var(--k'+k+')">●</b> '+esc(kName(k))
         +'<br><span style="font-size:13px;color:var(--muted)">'+esc(kWho(k))+'</span></span>'
-        +'<span><b>'+out+'</b> / '+all.length+' 盒</span></div>'}).join("")
+        +'<span><b>'+out+'</b> / '+qtySum(all)+' 盒</span></div>'}).join("")
+    +'<div class="line" style="color:var(--muted)"><span>不需給餅</span><span>'+rows.filter(function(p){return kOf(p)==="0"}).length+' 位</span></div>'
     +'<p class="note">一人一盒，分母就是訂購要抓的盒數，建議再加一成備品。</p></div>'
 
   /* 「喜餅指定」留空的提醒：這一欄現在是唯一依據 */
@@ -1526,7 +1613,7 @@ function renderDash(w){
       +'</div></div>'
   }
 
-  w.innerHTML=overCard+specCard+noteCard
+  w.innerHTML=overCard+specCard+noteCard+absCard
     +'<div class="kpis">'
     +'<div class="kpi"><div class="k">已到場人數</div><div class="v">'+arr
     +'<span style="font-size:15px;color:var(--dim)"> / '+totH+'</span></div>'
