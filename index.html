@@ -445,8 +445,13 @@ function isCond(p){return String(p.boxSet||"").indexOf("有給禮金")>=0||Strin
 /* 備註寫「不參加」：保留資料、灰底顯示，但不計入桌位人數 */
 function isAbsent(p){return String(p.note||"").indexOf("不參加")>=0}
 /* 備註寫「帶走 N 盒」：一個人代領多盒 */
-function boxQty(p){var m=String(p.note||"").match(/帶走\s*(\d+)\s*盒/);return m?Number(m[1]):1}
-function qtySum(list){return list.reduce(function(a,p){return a+boxQty(p)},0)}
+/* 備註寫「帶走 N 盒卡柏蒂／赫拉（小）／赫拉（大）」：本人那份照喜餅指定，另外代帶 N 盒 */
+function extraOf(p){var m=String(p.note||"").match(/帶走\s*(\d+)\s*盒\s*(卡柏蒂|卡|赫拉（小）|赫拉\(小\)|赫小|赫拉（大）|赫拉\(大\)|赫大)/)
+  return m?{n:Number(m[1]),k:normK(m[2])}:null}
+function boxesOf(p,k){var n=(kOf(p)===k?1:0),e=extraOf(p);if(e&&e.k===k)n+=e.n;return n}
+function kRows(k){return rows.filter(function(p){return boxesOf(p,k)>0})}
+function kTotal(list,k){return list.reduce(function(a,p){return a+boxesOf(p,k)},0)}
+function extraTag(p){var e=extraOf(p);return e?("另帶 "+kName(e.k)+" "+e.n+" 盒"):""}
 function hasEnv(p){return !!(p.envNo&&p.envNo!=="—")}
 function absCls(p){return isAbsent(p)?" absent":""}
 function absChip(p){return isAbsent(p)?'<span class="chip ab">不參加・不計桌位</span>':''}
@@ -1098,7 +1103,7 @@ async function doDoneGift(id,no,amtRaw,plusRaw){
   }else{
     await send({action:"checkin",id:id,amount:amt,plus:pt},function(){
       p.stage=1;p.amount=amt;p.envNo=no;p.plus=pt})
-    if(kOf(p)==="0"){
+    if(kOf(p)==="0"&&!extraOf(p)){
       await send({action:"stage",id:id,stage:2},function(){p.stage=2})
       toast("已報到（不需給餅），直接送到接待")
     }else toast(p.noFee?"已報到（免收禮），發餅台會收到通知":"已送出，發餅台會收到通知")
@@ -1194,7 +1199,7 @@ function renderBox(w){
       +'<div class="idle"><span class="mk">✦</span>請先選擇你負責女方或男方<br>之後只會顯示這一方的賓客</div>'
     prevIds=new Set();return
   }
-  var q=rows.filter(function(p){return p.stage===1&&p.side===boxSide&&kOf(p)!=="0"})
+  var q=rows.filter(function(p){return p.stage===1&&p.side===boxSide&&(kOf(p)!=="0"||extraOf(p))})
   var ids=new Set(q.map(function(p){return p.id})),fresh=false
   ids.forEach(function(i){if(!prevIds.has(i))fresh=true})
   if(prevIds.size&&fresh)ping()
@@ -1206,9 +1211,10 @@ function renderBox(w){
       +'<div class="nowlabel">現在這一位</div>'
       +'<div class="nowname">'+esc(cur.name)+'</div>'
       +'<div class="nowitems">'
-      +kItems(k).map(function(it,ix){
-        return '<div class="item"><span class="num">'+(boxQty(cur)>1?'×'+boxQty(cur):(ix+1))+'</span><span>'+esc(it)
-          +(boxQty(cur)>1?'　共 '+boxQty(cur)+' 盒':'')+'</span></div>'}).join("")
+      +(k==="0"?[]:kItems(k)).map(function(it,ix){
+        return '<div class="item"><span class="num">'+(ix+1)+'</span><span>'+esc(it)+'</span></div>'}).join("")
+      +(extraOf(cur)?'<div class="item"><span class="num">＋</span><span>'+esc(kName(extraOf(cur).k))
+        +'　另外代帶 '+extraOf(cur).n+' 盒</span></div>':'')
       +'</div>'
       +((cur.note&&cur.note.trim())?'<div class="dbl" style="margin-top:14px">'+esc(cur.note)+'</div>':'')
       +'<div class="nowmeta"><span class="badge k'+k+'">'+esc(kWho(k))+'</span>'
@@ -1230,8 +1236,8 @@ function renderBox(w){
     +'<div id="bres"></div>'
     +'<p class="sect" style="margin-top:22px">全部款式進度</p><div class="cats">'
   ;K_LIST.forEach(function(k){
-    var all=rows.filter(function(p){return kOf(p)===k})
-    var out=qtySum(all.filter(function(p){return p.stage>=2})),tot=qtySum(all)
+    var all=kRows(k)
+    var out=kTotal(all.filter(function(p){return p.stage>=2}),k),tot=kTotal(all,k)
     var pc=tot?Math.round(out/tot*100):0
     html+='<button class="cat k'+k+'" onclick="openBoxRoster(\''+k+'\')">'
       +'<span class="dot"></span><span class="nm"><b>'+esc(kName(k))+'</b>'
@@ -1265,7 +1271,7 @@ function paintBoxSearch(){
       +'請用下方「未包禮金者直接領餅」新增</div>';return
   }
   box.innerHTML=list.slice(0,40).map(function(p){
-    var k=kOf(p),done=p.stage>=2||k==="0"
+    var k=kOf(p),done=p.stage>=2||(k==="0"&&!extraOf(p))
     return '<div class="row '+(done?"done":"")+absCls(p)+'" onclick="'
       +(done?'openFix('+p.id+')':'gaveBox('+p.id+')')+'">'
       +'<div class="bar k'+k+'"></div><div class="rowmain">'
@@ -1273,13 +1279,13 @@ function paintBoxSearch(){
       +'<div class="rmeta"><span class="chip k'+k+'">'+esc(kName(k))+'</span>'
       +'<span>第 '+p.table+' 桌</span>'
       +(heads(p)>1?'<span>共 '+heads(p)+' 位</span>':'')
-      +(boxQty(p)>1?'<span class="chip k'+k+'">代領 '+boxQty(p)+' 盒</span>':'')+absChip(p)
+      +(extraOf(p)?'<span class="chip k'+extraOf(p).k+'">'+esc(extraTag(p))+'</span>':'')+absChip(p)
       +(k==="0"?'':(p.stage>=2?'<span class="chip ok">已領取</span>':''))+'</div></div>'
       +'<div class="rowgo'+(done?"":" edit")+'">'+(done?"✎":"發出<br>喜餅")+'</div></div>'}).join("")
 }
 function openBoxRoster(k){
-  var all=rows.filter(function(p){return kOf(p)===k})
-  var out=qtySum(all.filter(function(p){return p.stage>=2})),tot=qtySum(all)
+  var all=kRows(k)
+  var out=kTotal(all.filter(function(p){return p.stage>=2}),k),tot=kTotal(all,k)
   $("#sheetIn").innerHTML='<div class="shead"><h2>'+esc(kName(k))+'</h2>'
     +'<div class="rmeta" style="margin-top:6px"><span>已發出 '+out+' 盒，尚有 '+(tot-out)+' 盒未發</span></div></div>'
     +'<div class="sbody"><div class="rost">'
@@ -1287,7 +1293,7 @@ function openBoxRoster(k){
       var cls=p.stage>=2?"done":(p.stage===1?"wait":"")
       var st=p.stage>=2?"已領取":(p.stage===1?"待發餅":"未到")
       return '<button class="rc '+cls+absCls(p)+'" onclick="openFix('+p.id+',function(){openBoxRoster(\''+k+'\')})">'
-        +'<div class="rn">'+esc(p.name)+(boxQty(p)>1?'<span class="pt">×'+boxQty(p)+'</span>':'')+'</div>'
+        +'<div class="rn">'+esc(p.name)+(boxesOf(p,k)>1?'<span class="pt">×'+boxesOf(p,k)+'</span>':'')+'</div>'
         +'<div class="rs">'+st+'　'+p.table+'桌</div></button>'}).join("")
     +'</div><p class="note">刪去線代表已領取。點任何一位可查看資料、改進度或加備註。</p>'
     +'<button class="big sec" onclick="closeSheet()">關閉</button></div>'
@@ -1297,11 +1303,11 @@ function gaveBox(id){
   var p=byId(id);if(!p)return
   if(p.stage>=2){toast(p.name+" 已經領過了");return}
   var k=kOf(p)
-  if(k==="0"){toast(p.name+" 不需給餅");return}
+  if(k==="0"&&!extraOf(p)){toast(p.name+" 不需給餅");return}
   askConfirm({
     title:"確認發出喜餅",
     who:p.name+"　第 "+p.table+" 桌",
-    to:kName(k)+(boxQty(p)>1?"　共 "+boxQty(p)+" 盒":""),
+    to:(k==="0"?"":kName(k))+(extraOf(p)?((k==="0"?"":"\n＋")+kName(extraOf(p).k)+" "+extraOf(p).n+" 盒（代帶）"):""),
     note:"交出前先問一句「請問是"+p.name+"嗎？」確認是本人。",
     yes:"已交給賓客",
     onYes:function(){doGaveBox(id)}
@@ -1406,8 +1412,9 @@ function renderHub(w){
   K_ALL.forEach(function(k){cnt[k]=0})
   rows.forEach(function(p){
     if(unspecified(p)){undec++;return}
-    var k=kOf(p)
-    cnt[k]+=(k==="0"?1:boxQty(p))
+    var k=kOf(p),e=extraOf(p)
+    cnt[k]++
+    if(e)cnt[e.k]+=e.n
     if(isCond(p))cond++
   })
   var cake='<div class="card"><h3>喜餅數量・即時</h3>'
@@ -1548,7 +1555,7 @@ function renderDash(w){
   }
 
   /* 工作人員備註 */
-  var noted=rows.filter(function(p){return p.note&&p.note.trim()&&!isAbsent(p)&&boxQty(p)===1})
+  var noted=rows.filter(function(p){return p.note&&p.note.trim()&&!isAbsent(p)&&!extraOf(p)})
   var absList=rows.filter(isAbsent),absCard=""
   if(absList.length){
     absCard='<div class="card" style="background:#F1F1F1;border-color:#D8D8D8">'
@@ -1589,11 +1596,11 @@ function renderDash(w){
   /* 喜餅：依族群 + 實際盒數 */
   var boxCard='<div class="card"><h3>喜餅發放</h3>'
     +K_LIST.map(function(k){
-      var all=rows.filter(function(p){return kOf(p)===k})
-      var out=qtySum(all.filter(function(p){return p.stage>=2}))
+      var all=kRows(k)
+      var out=kTotal(all.filter(function(p){return p.stage>=2}),k)
       return '<div class="line"><span><b style="color:var(--k'+k+')">●</b> '+esc(kName(k))
         +'<br><span style="font-size:13px;color:var(--muted)">'+esc(kWho(k))+'</span></span>'
-        +'<span><b>'+out+'</b> / '+qtySum(all)+' 盒</span></div>'}).join("")
+        +'<span><b>'+out+'</b> / '+kTotal(all,k)+' 盒</span></div>'}).join("")
     +'<div class="line" style="color:var(--muted)"><span>不需給餅</span><span>'+rows.filter(function(p){return kOf(p)==="0"}).length+' 位</span></div>'
     +'<p class="note">一人一盒，分母就是訂購要抓的盒數，建議再加一成備品。</p></div>'
 
