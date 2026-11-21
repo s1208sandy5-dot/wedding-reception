@@ -159,10 +159,10 @@ input{font-family:inherit;font-size:inherit}
 
 /* search */
 .searchwrap{position:relative;margin-bottom:12px}
-#q,#bq{width:100%;padding:16px 44px 16px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--line2);
+#q,#bq,#uq{width:100%;padding:16px 44px 16px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--line2);
   color:var(--ink);font-size:21.5px;font-weight:500;outline:none}
-#q:focus,#bq:focus{border-color:var(--aqua);box-shadow:0 0 0 3px var(--aqua-l)}
-#q::placeholder,#bq::placeholder{color:var(--dim);font-weight:400;font-size:18px}
+#q:focus,#bq:focus,#uq:focus{border-color:var(--aqua);box-shadow:0 0 0 3px var(--aqua-l)}
+#q::placeholder,#bq::placeholder,#uq::placeholder{color:var(--dim);font-weight:400;font-size:18px}
 .clr{position:absolute;right:6px;top:6px;bottom:6px;width:36px;color:var(--dim);font-size:21.5px;display:none}
 .clr.on{display:block}
 .row{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:9px;overflow:hidden}
@@ -188,6 +188,9 @@ input{font-family:inherit;font-size:inherit}
 .row.absent .rname,.rc.absent .rn{color:#777}
 .rowgo{flex:0 0 62px;display:flex;align-items:center;justify-content:center;color:var(--dim);
   font-size:21.5px;border-left:1px solid var(--line);text-align:center;line-height:1.25}
+.rowgo.tb{flex:0 0 78px;background:var(--tint);color:var(--ink);font-size:30px;font-weight:700;flex-direction:column;line-height:1}
+.rowgo.tb small{font-size:12px;font-weight:500;color:var(--muted);margin-top:4px}
+.boxmemo{background:#FFF6E0;border:1px solid #F0D79A;color:#6B4E00;border-radius:14px;padding:12px 16px;margin-bottom:14px;font-size:15.5px;line-height:1.7}
 .rowgo.edit{background:var(--aqua-l);color:var(--aqua-d);font-size:14px;font-weight:500}
 .hint{font-size:13.5px;color:var(--muted);margin:0 4px 10px;line-height:1.7}
 .empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:15.5px;line-height:2}
@@ -404,7 +407,7 @@ var rows=[],hub=[],rev=-1,role=null,code=""
 var perms={roles:[],seeTotals:false,canEnterAmount:false}
 /* 共用狀態（這一行缺了會造成 ReferenceError） */
 var prevIds=new Set(), audioCtx=null, shellRole=null,
-    composing=false, sheetOpen=false, outbox=[], boxQ=""
+    composing=false, sheetOpen=false, outbox=[], boxQ="", ushQ=""
 var boxNames={
   '1':'卡柏蒂 CUPETIT',
   '2':'赫拉（小）',
@@ -751,6 +754,8 @@ document.addEventListener("visibilitychange",function(){
 
 function render(){
   if(!role)return
+  var ae=document.activeElement
+  if(ae&&(ae.id==="uq"||ae.id==="bq")&&composing)return
   var w=$("#wrap")
   if(role==="gF"||role==="gM")renderGift(w)
   else{shellRole=null
@@ -1188,6 +1193,10 @@ function offlineBanner(){
 var boxSide=(function(){try{return localStorage.getItem("wedBoxSide")||""}catch(e){return ""}})()
 function setBoxSide(v){boxSide=v;try{localStorage.setItem("wedBoxSide",v)}catch(e){}
   prevIds=new Set();render()}
+/* 女方發餅台最上方的提醒（不寫賓客姓名） */
+var RESERVE={"1":6}   // 另外留的盒數（不屬於任何賓客）
+var BOX_MEMO={"女":"另外留 <b>6 盒卡柏蒂</b>，女方媽媽會協助處理，不用發給特定賓客。清點時記得扣掉這 6 盒。"}
+function boxMemo(){return BOX_MEMO[boxSide]?'<div class="boxmemo">📌 '+BOX_MEMO[boxSide]+'</div>':''}
 function boxSideBar(){
   return '<p class="sect" style="margin-top:0">你負責哪一方的喜餅？</p><div class="seg" style="margin-bottom:16px">'
     +'<button '+(boxSide==="女"?'data-on="1"':'')+' onclick="setBoxSide(\'女\')">女方發餅</button>'
@@ -1204,7 +1213,7 @@ function renderBox(w){
   ids.forEach(function(i){if(!prevIds.has(i))fresh=true})
   if(prevIds.size&&fresh)ping()
   var cur=q[0]
-  var html=offlineBanner()+boxSideBar()
+  var html=offlineBanner()+boxSideBar()+boxMemo()
   if(cur){
     var k=kOf(cur)
     html+='<div class="now k'+k+'"><div class="strip"></div><div class="body">'
@@ -1247,8 +1256,10 @@ function renderBox(w){
   })
   html+='</div><div class="util" style="margin-top:14px">'
     +'<button onclick="walkinForm(\'box\')">未包禮金者直接領餅</button></div>'
+  var bFocus=document.activeElement&&document.activeElement.id==="bq"
   w.innerHTML=html
   var bq=$("#bq")
+  if(bq&&bFocus){bq.focus();try{bq.setSelectionRange(bq.value.length,bq.value.length)}catch(e){}}
   if(bq){
     bq.addEventListener("compositionstart",function(){composing=true})
     bq.addEventListener("compositionend",function(){composing=false;boxQ=bq.value;paintBoxSearch()})
@@ -1346,6 +1357,11 @@ function renderUsher(w){
   }else{
     html+='<div class="idle"><span class="mk">✦</span>目前沒有待引導的賓客<br>發餅台完成後會自動出現在這裡</div>'
   }
+  html+='<p class="sect">長輩不知道桌號？搜尋姓名</p>'
+    +'<div class="searchwrap"><input id="uq" placeholder="輸入姓名或桌次" autocomplete="off" '
+    +'autocorrect="off" spellcheck="false" value="'+esc(ushQ)+'">'
+    +'<button class="clr'+(ushQ?" on":"")+'" id="uclr">✕</button></div>'
+    +'<div id="ures"></div>'
   var tables=[];rows.forEach(function(p){if(tables.indexOf(p.table)<0)tables.push(p.table)})
   tables.sort(function(a,b){return a-b})
   var seated=headSum(rows.filter(function(p){return p.stage===3}))
@@ -1358,8 +1374,44 @@ function renderUsher(w){
         +'<span class="n">'+t+'</span><span class="c">'+a+'/'+tt+'</span>'
         +(tt>capOf(t)?'<span class="ov">超額</span>':'')+'</button>'}).join("")
     +'</div>'
+  var hadFocus=document.activeElement&&document.activeElement.id==="uq"
   w.innerHTML=html
+  var uq=$("#uq")
+  if(uq){
+    uq.addEventListener("compositionstart",function(){composing=true})
+    uq.addEventListener("compositionend",function(){composing=false;ushQ=uq.value;paintUshSearch()})
+    uq.addEventListener("input",function(){if(!composing){ushQ=uq.value;paintUshSearch()}})
+    $("#uclr").onclick=function(){uq.value="";ushQ="";paintUshSearch();uq.focus()}
+    if(hadFocus){uq.focus();try{uq.setSelectionRange(uq.value.length,uq.value.length)}catch(e){}}
+  }
+  paintUshSearch()
   prevIds=ids
+}
+function paintUshSearch(){
+  var box=$("#ures");if(!box)return
+  var q=ushQ.trim()
+  var cl=$("#uclr");if(cl)cl.classList.toggle("on",!!q)
+  if(!q){box.innerHTML="";return}
+  var list=rows.filter(function(p){return p.name.indexOf(q)>=0||String(p.table)===q})
+  if(!list.length){
+    box.innerHTML='<div class="empty">名單上沒有「'+esc(q)+'」<br>請問賓客是男方還是女方，帶去對應的收禮桌，或找總召</div>';return
+  }
+  box.innerHTML=list.slice(0,40).map(function(p){
+    var st=p.stage===3?'<span class="chip ok">已入席</span>'
+      :p.stage===2?'<span class="chip ok">可入席</span>'
+      :p.stage===1?'<span class="chip nf">還沒領餅</span>'
+      :'<span class="chip nf">還沒收禮</span>'
+    return '<div class="row '+(p.stage===3?"done":"")+absCls(p)+'" onclick="ushPick('+p.id+')">'
+      +'<div class="bar"></div><div class="rowmain"><div class="rname">'+esc(p.name)+'</div>'
+      +'<div class="rmeta"><span>'+p.side+'方'+esc(p.rel||"")+'</span><span>共 '+heads(p)+' 位</span>'+st+absChip(p)+'</div></div>'
+      +'<div class="rowgo tb">'+p.table+'<small>桌</small></div></div>'}).join("")
+}
+function ushPick(id){
+  var p=byId(id);if(!p)return
+  if(p.stage===2){seat(id);return}
+  if(p.stage===3){toast(p.name+" 已經入席了，第 "+p.table+" 桌");return}
+  toast(p.name+" 在第 "+p.table+" 桌，"+(p.stage===0?"還沒收禮":"還沒領餅")+"，可以先指路")
+  openFix(id)
 }
 function openTableRoster(t){
   var ps=rows.filter(function(p){return p.table===t})
@@ -1419,8 +1471,9 @@ function renderHub(w){
   })
   var cake='<div class="card"><h3>喜餅數量・即時</h3>'
     +K_LIST.map(function(k){
-      return '<div class="line"><span><b style="color:var(--k'+k+')">●</b> '+esc(kName(k))+'</span>'
-        +'<span><b>'+cnt[k]+'</b> 盒</span></div>'}).join("")
+      return '<div class="line"><span><b style="color:var(--k'+k+')">●</b> '+esc(kName(k))
+        +(RESERVE[k]?'<br><span style="font-size:13px;color:var(--muted)">賓客 '+cnt[k]+' 盒＋另留 '+RESERVE[k]+' 盒（女方媽媽處理）</span>':'')+'</span>'
+        +'<span><b>'+(cnt[k]+(RESERVE[k]||0))+'</b> 盒</span></div>'}).join("")
     +(cond?'<div class="line" style="color:var(--muted)"><span>　其中有包紅包才給（赫拉大）</span><span>'+cond+' 盒</span></div>':'')
     +'<div class="line" style="color:var(--muted)"><span>不需給餅</span><span>'+cnt["0"]+' 位</span></div>'
     +(undec?'<div class="line" style="color:var(--warn)"><span>尚未決定款式</span>'
