@@ -462,7 +462,7 @@ function kName(k){return boxNames[k]||("款"+k)}
 var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function byId(id){for(var i=0;i<rows.length;i++)if(rows[i].id===id)return rows[i];return null}
-var TABLE_CAP=10
+var TABLE_CAP=11                  // 每桌最多 11 位
 var TABLE_CAP_EX={1:12}            // 主桌 12 位
 function capOf(t){return TABLE_CAP_EX[t]||TABLE_CAP}
 function heads(p){return 1+(Number(p.plus)||0)}
@@ -538,8 +538,19 @@ function cacheAge(){
   var d=new Date(cacheTs)
   return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)
 }
+/* 寫在程式裡的固定備註：repo 公開，所以用姓名雜湊比對，不寫出姓名 */
+function nameHash(x){var v=5381;for(var i=0;i<x.length;i++){v=(((v*33)>>>0)^x.charCodeAt(i))>>>0}return v}
+var FIXED_NOTES=[{h:206032396,t:14,text:"有兩個女兒在第 8 桌（官方賴沒有呈現）"}]
+function applyFixedNotes(){
+  rows.forEach(function(p){
+    FIXED_NOTES.forEach(function(f){
+      if(p.table===f.t&&nameHash(String(p.name).trim())===f.h&&String(p.note||"").indexOf(f.text)<0)
+        p.note=(p.note&&p.note.trim())?(p.note+"；"+f.text):f.text
+    })
+  })
+}
 function applyPayload(d){
-  if(d.rows){rows=d.rows;fromCache=false}
+  if(d.rows){rows=d.rows;fromCache=false;applyFixedNotes()}
   if(d.hub)hub=d.hub
   if(d.rev!==undefined)rev=d.rev
   if(d.roles)perms={roles:d.roles,seeTotals:!!d.seeTotals,canEnterAmount:!!d.canEnterAmount}
